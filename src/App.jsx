@@ -45,7 +45,7 @@ function App() {
           {/* Auth Buttons */}
           <div className="hidden lg:flex space-x-4">
             <button className="bg-transparent border border-white text-white px-4 py-2 rounded-md">
-              Sign In
+              Download
             </button>
           </div>
         </div>
@@ -78,7 +78,7 @@ function App() {
 
       {/* Below Hero Section */}
       <section className="bg-white py-16">
-        <div className="container mx-auto text-center px-6">
+        <div className="container mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-800">
             We shall never deny a guest, even the
           </h2>
@@ -86,19 +86,18 @@ function App() {
             most ridiculous request
           </h2>
           <p className="text-gray-600 mt-4 break-words max-w-md mx-auto">
-            KerjaRodi.com is an application for job seekers and workers who
-            prioritize user comfort and the quality of services provided by our
-            team.
+            Gibi Info is an that empower students to achieve academic excellence
+            through innovative learning solutions.
           </p>
-          <div className="mt-6 flex flex-col md:flex-row justify-center gap-4">
-            <button className="bg-black text-white px-6 py-3 rounded-md">
+          <div className="mt-12 flex flex-col md:flex-row justify-center gap-16">
+            <button className="bg-black text-white px-3 py-3 rounded-md">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                 alt="Google Play"
                 className="h-10"
               />
             </button>
-            <button className="bg-black text-white px-6 py-3 rounded-md">
+            <button className="bg-black text-white px-3 py-3 rounded-md">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
                 alt="Google Play"
@@ -117,13 +116,13 @@ function App() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-[#008080]">
         <div className="container mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-800">
+          <h2 className="text-3xl font-bold text-white">
             We provide <span className="text-orange-500">excellent</span>{" "}
             features from us
           </h2>
-          <p className="text-gray-600 mt-4">
+          <p className="text-gray-300 mt-4">
             We shall never deny a guest, even the most ridiculous request. We
             provide excellent features from us.
           </p>
@@ -161,30 +160,29 @@ function App() {
 
           {/* Right - Testimonial Content */}
           <div className="lg:w-1/2 mt-8 lg:mt-0 lg:pl-10">
-            <h2 className="text-3xl lg:text-5xl font-bold text-black leading-tight">
+            <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
               What do they think about our App?
             </h2>
 
             <p className="mt-4 text-gray-400 text-lg font-semibold">
-              Cameron Williamson
+              Caalaa Bulcha
             </p>
-            <p className="text-gray-500">Founder Gojek Corp.</p>
+            <p className="text-gray-500">High school Student</p>
 
             {/* Testimonial Box */}
             <div className="bg-white text-gray-700 p-6 rounded-lg shadow-md mt-6 max-w-lg">
               <p>
-                Kerjarodi.com is an application for job seekers and workers who
-                prioritize user comfort and the quality of services provided by
-                our team.
+                GibiInfo helped me improve my grades significantly. The practice
+                questions are exactly what I needed!
               </p>
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex space-x-3 mt-6">
-              <button className="bg-orange-500 p-3 rounded text-white hover:bg-orange-600">
+            <div className="flex space-x-6 mt-6">
+              <button className="bg-[#40A0A0] p-3 rounded text-white ">
                 ◀
               </button>
-              <button className="bg-orange-500 p-3 rounded text-white hover:bg-orange-600">
+              <button className="bg-[#40A0A0] p-3 rounded text-white ">
                 ▶
               </button>
             </div>
@@ -197,10 +195,7 @@ function App() {
         <div className="container mx-auto px-6 flex flex-col lg:flex-row justify-between items-start">
           {/* Left Section */}
           <div className="mb-6 lg:mb-0">
-            <h2 className="text-xl font-bold">
-              <span className="text-orange-500">Kerja</span>
-              <span className="text-blue-500">Rodi</span>.com
-            </h2>
+            <h2 className="text-xl font-bold">Gibi Info</h2>
             <p className="text-gray-400 mt-2">
               Over 8,912,000 Satisfied with our appearance
             </p>
@@ -261,7 +256,7 @@ function App() {
                 placeholder="email@example.com"
                 className="p-2 rounded-l bg-white text-black w-64"
               />
-              <button className="bg-orange-500 px-4 py-2 rounded-r text-white">
+              <button className="bg-[#40A0A0] px-4 py-2 rounded-r text-white">
                 Subscribe now
               </button>
             </div>
@@ -270,8 +265,8 @@ function App() {
 
         {/* Bottom */}
         <div className="text-center text-gray-500 mt-8">
-          &copy; Copyright 2022 <span className="text-orange-500">Kerja</span>
-          <span className="text-blue-500">Rodi</span>.com
+          &copy; Copyright 2025 <span>Gibi</span>
+          <span>info</span>.com
         </div>
       </footer>
     </div>
