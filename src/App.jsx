@@ -6,6 +6,7 @@ import {
   FaFacebookSquare,
   FaInstagramSquare,
 } from "react-icons/fa";
+import { MdMenu } from "react-icons/md";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,10 +20,10 @@ function App() {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden text-white focus:outline-none"
+            className="lg:hidden text-white font-bold focus:outline-none"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            ☰
+            <MdMenu size={30}/>
           </button>
 
           {/* Nav Links */}
@@ -94,7 +95,7 @@ function App() {
             Gibi Info is an that empower students to achieve academic excellence
             through innovative learning solutions.
           </p>
-          <div className="mt-12 flex flex-col md:flex-row justify-center gap-16">
+          <div className="mt-12 flex justify-center gap-16">
             <button className="bg-black text-white px-3 py-3 rounded-md">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
