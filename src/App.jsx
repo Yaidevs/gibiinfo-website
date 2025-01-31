@@ -84,21 +84,21 @@ function App() {
 
           {/* Nav Links */}
           <nav
-            className={`absolute lg:static bg-[#211D1A] lg:bg-transparent w-full lg:w-auto top-[60px] left-0 lg:flex ${
+            className={`absolute lg:static bg-[#008080] lg:bg-transparent w-full lg:w-auto top-[60px] left-0 lg:flex ${
               menuOpen ? "block" : "hidden"
             }`}
           >
             <div className="lg:flex lg:space-x-6 text-center lg:text-left py-4 lg:py-0">
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#" className="block underline py-2 px-6 ">
                 Home
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#" className="block underline py-2 px-6 ">
                 About Us
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#" className="block underline py-2 px-6 ">
                 Featured
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#" className="block underline py-2 px-6 ">
                 Testimonial
               </a>
             </div>
@@ -114,6 +114,7 @@ function App() {
       </header>
 
       {/* Hero Section */}
+      {/* Hero Section */}
       <section className="bg-[#008080] py-32 min-h-screen pt-[160px]">
         <div className="container mx-auto flex flex-col lg:flex-row items-center px-6 text-center lg:text-left">
           <div className="lg:w-1/2">
@@ -128,12 +129,22 @@ function App() {
               Download
             </button>
           </div>
-          <div className="lg:w-1/2 mt-8 lg:mt-0 flex justify-center">
+          <div className="lg:w-1/2 mt-8 lg:mt-0 flex flex-col items-center">
             <img
               src={img1}
               alt="Mobile UI 1"
               className="w-full max-w-xs md:max-w-sm lg:max-w-md h-auto rounded-lg"
             />
+
+            {/* Embedded Frame - Visible on Small Screens, Hidden on Large Screens */}
+            <iframe
+              className="block lg:hidden w-full max-w-xs md:max-w-sm h-56 mt-24 rounded-lg"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              title="How to Use the App"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
           </div>
         </div>
       </section>
@@ -205,9 +216,10 @@ function App() {
           </div>
         </div>
       </section>
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center">
-          <div className="lg:w-1/2 relative">
+      <section className="bg-white py-16 relative">
+        <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-10">
+          {/* Image Section */}
+          <div className="lg:w-1/2 relative flex justify-center">
             <AnimatePresence mode="wait">
               <motion.img
                 key={testimonials[index].image}
@@ -222,9 +234,10 @@ function App() {
             </AnimatePresence>
           </div>
 
+          {/* Testimonial Content */}
           <div className="lg:w-1/2 mt-8 lg:mt-0 lg:pl-10">
             <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
-              What do they think about our App?
+              What Students Say About Our App?
             </h2>
             <AnimatePresence mode="wait">
               <motion.div
@@ -310,12 +323,12 @@ function App() {
               <ul className="mt-4 space-y-2 text-gray-400">
                 <li>
                   <a href="#" className="hover:text-white transition">
-                    Knowledgebase
+                    AI Powered
                   </a>
                 </li>
                 <li>
                   <a href="#" className="hover:text-white transition">
-                    Online Docs
+                    More Explanations
                   </a>
                 </li>
                 <li>
@@ -335,7 +348,7 @@ function App() {
                 </li>
                 <li>
                   <a href="#" className="hover:text-white transition">
-                    Careers
+                    Features
                   </a>
                 </li>
                 <li>
