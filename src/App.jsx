@@ -89,16 +89,16 @@ function App() {
             }`}
           >
             <div className="lg:flex lg:space-x-6 text-center lg:text-left py-4 lg:py-0">
-              <a href="#" className="block underline py-2 px-6 ">
+              <a href="#" className="block py-2 px-6 ">
                 Home
               </a>
-              <a href="#" className="block underline py-2 px-6 ">
+              <a href="#" className="block py-2 px-6 ">
                 About Us
               </a>
-              <a href="#" className="block underline py-2 px-6 ">
+              <a href="#" className="block py-2 px-6 ">
                 Featured
               </a>
-              <a href="#" className="block underline py-2 px-6 ">
+              <a href="#" className="block py-2 px-6 ">
                 Testimonial
               </a>
             </div>
@@ -115,7 +115,7 @@ function App() {
 
       {/* Hero Section */}
       {/* Hero Section */}
-      <section className="bg-[#008080] py-32 min-h-screen pt-[160px]">
+      <section className="bg-[#008080] py-32 pt-[160px]">
         <div className="container mx-auto flex flex-col lg:flex-row items-center px-6 text-center lg:text-left">
           <div className="lg:w-1/2">
             <h1 className="text-3xl text-white sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
