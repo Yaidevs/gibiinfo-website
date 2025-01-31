@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import img1 from "./assets/image 5.png";
 import img2 from "./assets/image 6.png";
+import {
+  FaLinkedin,
+  FaFacebookSquare,
+  FaInstagramSquare,
+} from "react-icons/fa";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -80,10 +85,10 @@ function App() {
       <section className="bg-white py-16">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-800">
-            We shall never deny a guest, even the
+            Access thousands of practice questions
           </h2>
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-800">
-            most ridiculous request
+            across various subjects.
           </h2>
           <p className="text-gray-600 mt-4 break-words max-w-md mx-auto">
             Gibi Info is an that empower students to achieve academic excellence
@@ -119,30 +124,27 @@ function App() {
       <section className="py-16 bg-[#008080]">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white">
-            We provide <span className="text-orange-500">excellent</span>{" "}
-            features from us
+            Why Choose GibiInfo?
           </h2>
           <p className="text-gray-300 mt-4">
-            We shall never deny a guest, even the most ridiculous request. We
-            provide excellent features from us.
+            Master your subjects with GibiInfo's comprehensive practice
+            questions and detailed explanations.
           </p>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {["Job Search", "Worker Search", "Message", "Dark Mode Theme"].map(
-              (feature, index) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 p-6 rounded-lg shadow-md"
-                >
-                  <h3 className="text-lg font-bold text-orange-500">
-                    {feature}
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    KerjaRodi.com is an application for job seekers and workers
-                    who prioritize user comfort and the quality of services.
-                  </p>
-                </div>
-              )
-            )}
+            {[
+              "Extensive Question Bank",
+              "Detailed Explanations",
+              "Progress Tracking",
+              "Dark Mode Theme",
+            ].map((feature, index) => (
+              <div key={index} className="bg-gray-50 p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-bold text-orange-500">{feature}</h3>
+                <p className="text-gray-600 mt-2">
+                  Access thousands of practice questions across various
+                  subjects.
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -201,13 +203,13 @@ function App() {
             </p>
             <div className="flex space-x-3 mt-4">
               <a href="#" className="bg-white text-black p-2 rounded">
-                <i className="fab fa-facebook"></i>
+                <FaFacebookSquare />
               </a>
               <a href="#" className="bg-white text-black p-2 rounded">
-                <i className="fab fa-twitter"></i>
+                <FaInstagramSquare />
               </a>
               <a href="#" className="bg-white text-black p-2 rounded">
-                <i className="fab fa-linkedin"></i>
+                <FaLinkedin />
               </a>
             </div>
           </div>
