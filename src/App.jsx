@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import img1 from "./assets/image 5.png";
 import img2 from "./assets/image 6.png";
 import {
@@ -6,11 +6,66 @@ import {
   FaFacebookSquare,
   FaInstagramSquare,
 } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import { MdMenu } from "react-icons/md";
+const testimonials = [
+  {
+    name: "Caalaa Bulcha",
+    role: "High School Student",
+    image:
+      "https://img.freepik.com/free-photo/front-view-young-male-student-wearing-black-mask-with-backpack-holding-files-using-his-phone-blue-background_140725-41202.jpg?uid=R120137908&ga=GA1.1.552436040.1735197856&semt=ais_hybrid",
+    quote:
+      "GibiInfo helped me improve my grades significantly. The practice questions are exactly what I needed!",
+  },
+  {
+    name: "Amira Johnson",
+    role: "College Student",
+    image:
+      "https://img.freepik.com/free-photo/smiling-young-woman-student-wearing-glasses-holding-books-standing-outside-campus_171337-14082.jpg",
+    quote:
+      "This app is a game changer! It made learning so much easier and fun. Highly recommend it to all students!",
+  },
+  {
+    name: "Ethan Smith",
+    role: "University Graduate",
+    image:
+      "https://img.freepik.com/premium-photo/african-american-student-glasses-with-books_8119-2344.jpg?uid=R120137908&ga=GA1.1.552436040.1735197856&semt=ais_hybrid",
+    quote:
+      "Thanks to GibiInfo, I was able to pass my exams with flying colors! The detailed explanations were super helpful.",
+  },
+];
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [fade, setFade] = useState(true);
 
+  // Auto-slide testimonials every 5 seconds with fade effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextTestimonial();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextTestimonial = () => {
+    setFade(false); // Start fade-out effect
+    setTimeout(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+      setFade(true); // Fade-in effect
+    }, 300);
+  };
+
+  const prevTestimonial = () => {
+    setFade(false);
+    setTimeout(() => {
+      setIndex((prevIndex) =>
+        prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+      );
+      setFade(true);
+    }, 300);
+  };
   return (
     <div className="font-sans">
       {/* Header */}
@@ -23,7 +78,7 @@ function App() {
             className="lg:hidden text-white font-bold focus:outline-none"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            <MdMenu size={30}/>
+            <MdMenu size={30} />
           </button>
 
           {/* Nav Links */}
@@ -139,7 +194,7 @@ function App() {
               "Dark Mode Theme",
             ].map((feature, index) => (
               <div key={index} className="bg-gray-50 p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-bold text-orange-500">{feature}</h3>
+                <h3 className="text-lg font-bold text-[#40A0A0]">{feature}</h3>
                 <p className="text-gray-600 mt-2">
                   Access thousands of practice questions across various
                   subjects.
@@ -149,127 +204,173 @@ function App() {
           </div>
         </div>
       </section>
-
       <section className="bg-white py-16">
         <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center">
-          {/* Left - Image */}
           <div className="lg:w-1/2 relative">
-            <img
-              src="https://img.freepik.com/free-photo/front-view-young-male-student-wearing-black-mask-with-backpack-holding-files-using-his-phone-blue-background_140725-41202.jpg?uid=R120137908&ga=GA1.1.552436040.1735197856&semt=ais_hybrid"
-              alt="Cameron Williamson"
-              className="rounded-lg w-full max-w-sm lg:max-w-md"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={testimonials[index].image}
+                src={testimonials[index].image}
+                alt={testimonials[index].name}
+                className="rounded-lg w-full max-w-sm lg:max-w-md shadow-lg"
+                initial={{ opacity: 0, scale: 0.9, x: -50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.9, x: 50 }}
+                transition={{ duration: 0.6 }}
+              />
+            </AnimatePresence>
           </div>
 
-          {/* Right - Testimonial Content */}
           <div className="lg:w-1/2 mt-8 lg:mt-0 lg:pl-10">
-            <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
-              What do they think about our App?
-            </h2>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.6 }}
+                className="text-center lg:text-left"
+              >
+                <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
+                  What do they think about our App?
+                </h2>
 
-            <p className="mt-4 text-gray-400 text-lg font-semibold">
-              Caalaa Bulcha
-            </p>
-            <p className="text-gray-500">High school Student</p>
+                <p className="mt-4 text-gray-400 text-lg font-semibold">
+                  {testimonials[index].name}
+                </p>
+                <p className="text-gray-500">{testimonials[index].role}</p>
 
-            {/* Testimonial Box */}
-            <div className="bg-white text-gray-700 p-6 rounded-lg shadow-md mt-6 max-w-lg">
-              <p>
-                GibiInfo helped me improve my grades significantly. The practice
-                questions are exactly what I needed!
-              </p>
-            </div>
+                <div className="bg-white text-gray-700 p-6 rounded-lg shadow-md mt-6 max-w-lg mx-auto lg:mx-0">
+                  <p>{testimonials[index].quote}</p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
             {/* Navigation Buttons */}
-            <div className="flex space-x-6 mt-6">
-              <button className="bg-[#40A0A0] p-3 rounded text-white ">
+            <div className="flex space-x-6 mt-6 justify-center lg:justify-start">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevTestimonial}
+                className="bg-[#40A0A0] p-3 rounded text-white shadow-md"
+              >
                 ◀
-              </button>
-              <button className="bg-[#40A0A0] p-3 rounded text-white ">
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={nextTestimonial}
+                className="bg-[#40A0A0] p-3 rounded text-white shadow-md"
+              >
                 ▶
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-10">
-        <div className="container mx-auto px-6 flex flex-col lg:flex-row justify-between items-start">
-          {/* Left Section */}
-          <div className="mb-6 lg:mb-0">
-            <h2 className="text-xl font-bold">Gibi Info</h2>
-            <p className="text-gray-400 mt-2">
-              Over 8,912,000 Satisfied with our appearance
-            </p>
-            <div className="flex space-x-3 mt-4">
-              <a href="#" className="bg-white text-black p-2 rounded">
-                <FaFacebookSquare />
-              </a>
-              <a href="#" className="bg-white text-black p-2 rounded">
-                <FaInstagramSquare />
-              </a>
-              <a href="#" className="bg-white text-black p-2 rounded">
-                <FaLinkedin />
-              </a>
-            </div>
-          </div>
-
-          {/* Middle Sections */}
-          <div className="flex space-x-12">
-            <div>
-              <h3 className="text-lg font-semibold">Resources</h3>
-              <ul className="mt-2 space-y-1 text-gray-400">
-                <li>
-                  <a href="#">Knowledgebase</a>
-                </li>
-                <li>
-                  <a href="#">Online Doc</a>
-                </li>
-                <li>
-                  <a href="#">Redundant</a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">About us</h3>
-              <ul className="mt-2 space-y-1 text-gray-400">
-                <li>
-                  <a href="#">Knowledgebase</a>
-                </li>
-                <li>
-                  <a href="#">Online Doc</a>
-                </li>
-                <li>
-                  <a href="#">Redundant</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Right Section */}
+      <footer className="bg-gray-900 text-white pt-16 pb-8">
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* Left - Brand & Social Media */}
           <div>
-            <h3 className="text-lg font-semibold">Subscribe to Newsletter</h3>
-            <p className="text-gray-400 mt-2">
-              What are you waiting for? Subscribe and follow our progress!
+            <h2 className="text-3xl font-bold text-[#40A0A0]">Gibi Info</h2>
+            <p className="text-gray-400 mt-4">
+              Over <span className="text-white font-semibold">2,000</span>{" "}
+              satisfied users worldwide.
             </p>
-            <div className="flex mt-4">
+            <div className="flex space-x-4 mt-6">
+              <a
+                href="#"
+                className="bg-[#008080] text-white p-3 rounded-full hover:bg-[#40A0A0] hover:text-white transition"
+              >
+                <FaFacebookSquare size={20} />
+              </a>
+              <a
+                href="#"
+                className="bg-[#008080] text-white p-3 rounded-full hover:bg-[#40A0A0] hover:text-white transition"
+              >
+                <FaInstagramSquare size={20} />
+              </a>
+              <a
+                href="#"
+                className="bg-[#008080] text-white p-3 rounded-full hover:bg-[#40A0A0] hover:text-white transition"
+              >
+                <FaLinkedin size={20} />
+              </a>
+            </div>
+          </div>
+
+          {/* Middle - Navigation Links */}
+          <div className="grid grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-[#40A0A0]">
+                Resources
+              </h3>
+              <ul className="mt-4 space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    Knowledgebase
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    Online Docs
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#40A0A0]">Company</h3>
+              <ul className="mt-4 space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    Careers
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition">
+                    Contact
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Right - Newsletter */}
+          <div>
+            <h3 className="text-lg font-semibold text-[#40A0A0]">
+              Subscribe to Our Newsletter
+            </h3>
+            <p className="text-gray-400 mt-2">
+              Stay updated with the latest news and exclusive offers!
+            </p>
+            <div className="flex mt-6">
               <input
                 type="email"
-                placeholder="email@example.com"
-                className="p-2 rounded-l bg-white text-black w-64"
+                placeholder="Enter your email"
+                className="p-3 w-2/3 rounded-l bg-gray-800 text-white outline-none border border-gray-700 focus:border-[#40A0A0] transition"
               />
-              <button className="bg-[#40A0A0] px-4 py-2 rounded-r text-white">
-                Subscribe now
+              <button className="bg-[#40A0A0] px-6 py-3 rounded-r text-white hover:bg-[#2E7D7D] transition">
+                Subscribe
               </button>
             </div>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="text-center text-gray-500 mt-8">
-          &copy; Copyright 2025 <span>Gibi</span>
-          <span>info</span>.com
+        <div className="border-t border-gray-700 mt-12 pt-6 text-center text-gray-500 text-sm">
+          &copy; {new Date().getFullYear()} Gibi Info. All rights reserved.
         </div>
       </footer>
     </div>
