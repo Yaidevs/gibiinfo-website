@@ -89,16 +89,16 @@ function App() {
             }`}
           >
             <div className="lg:flex lg:space-x-6 text-center lg:text-left py-4 lg:py-0">
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#hero" className="block py-2 px-6 ">
                 Home
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#aboutus" className="block py-2 px-6 ">
                 About Us
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#features" className="block py-2 px-6 ">
                 Featured
               </a>
-              <a href="#" className="block py-2 px-6 ">
+              <a href="#testimonials" className="block py-2 px-6 ">
                 Testimonial
               </a>
             </div>
@@ -115,7 +115,7 @@ function App() {
 
       {/* Hero Section */}
       {/* Hero Section */}
-      <section className="bg-[#008080] py-32 pt-[160px]">
+      <section id="hero" className="bg-[#008080] py-32 pt-[160px]">
         <div className="container mx-auto flex flex-col lg:flex-row items-center px-6 text-center lg:text-left">
           <div className="lg:w-1/2">
             <h1 className="text-3xl text-white sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
@@ -151,7 +151,7 @@ function App() {
 
       {/* Below Hero Section */}
       <section className="bg-white py-16">
-        <div className="container mx-auto text-center">
+        <div id="aboutus" className="container mx-auto text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-800">
             Access thousands of practice questions
           </h2>
@@ -190,7 +190,7 @@ function App() {
 
       {/* Features Section */}
       <section className="py-16 bg-[#008080]">
-        <div className="container mx-auto px-6 text-center">
+        <div id="features" className="container mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white">
             Why Choose GibiInfo?
           </h2>
@@ -216,7 +216,7 @@ function App() {
           </div>
         </div>
       </section>
-      <section className="bg-white py-16 relative">
+      <section id="testimonials" className="bg-white py-16 relative">
         <div className="container mx-auto px-6 flex flex-col lg:flex-row items-center gap-10">
           {/* Image Section */}
           <div className="lg:w-1/2 relative flex justify-center">
