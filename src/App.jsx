@@ -61,7 +61,7 @@ function App() {
         <div className="container mx-auto flex flex-col lg:flex-row items-center px-6 text-center lg:text-left">
           <div className="lg:w-1/2">
             <h1 className="text-3xl text-white sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
-              Learn, Practice, Excel
+              Learn, Practice and Excel
             </h1>
             <p className="text-white mt-4">
               Master your subjects with GibiInfo's comprehensive practice
