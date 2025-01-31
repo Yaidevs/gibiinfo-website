@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import img1 from "./assets/image 5.png";
 import img2 from "./assets/image 6.png";
+import test1 from "./assets/image (3).png";
+import test2 from "./assets/image (2).png";
+
 import {
   FaLinkedin,
   FaFacebookSquare,
@@ -12,21 +15,19 @@ const testimonials = [
   {
     name: "Caalaa Bulcha",
     role: "High School Student",
-    image:
-      "https://img.freepik.com/free-photo/front-view-young-male-student-wearing-black-mask-with-backpack-holding-files-using-his-phone-blue-background_140725-41202.jpg?uid=R120137908&ga=GA1.1.552436040.1735197856&semt=ais_hybrid",
+    image: test1,
     quote:
       "GibiInfo helped me improve my grades significantly. The practice questions are exactly what I needed!",
   },
   {
-    name: "Amira Johnson",
+    name: "Abebe B.",
     role: "College Student",
-    image:
-      "https://img.freepik.com/free-photo/smiling-young-woman-student-wearing-glasses-holding-books-standing-outside-campus_171337-14082.jpg",
+    image: test2,
     quote:
       "This app is a game changer! It made learning so much easier and fun. Highly recommend it to all students!",
   },
   {
-    name: "Ethan Smith",
+    name: "Yonas D.",
     role: "University Graduate",
     image:
       "https://img.freepik.com/premium-photo/african-american-student-glasses-with-books_8119-2344.jpg?uid=R120137908&ga=GA1.1.552436040.1735197856&semt=ais_hybrid",
@@ -222,6 +223,9 @@ function App() {
           </div>
 
           <div className="lg:w-1/2 mt-8 lg:mt-0 lg:pl-10">
+            <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
+              What do they think about our App?
+            </h2>
             <AnimatePresence mode="wait">
               <motion.div
                 key={index}
@@ -231,10 +235,6 @@ function App() {
                 transition={{ duration: 0.6 }}
                 className="text-center lg:text-left"
               >
-                <h2 className="text-2xl lg:text-4xl font-bold text-gray-700 leading-tight">
-                  What do they think about our App?
-                </h2>
-
                 <p className="mt-4 text-gray-400 text-lg font-semibold">
                   {testimonials[index].name}
                 </p>
