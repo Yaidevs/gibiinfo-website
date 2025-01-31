@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import logo from "./assets/logo.png";
 import img1 from "./assets/image 5.png";
 import img2 from "./assets/image 6.png";
 import test1 from "./assets/image (3).png";
@@ -72,7 +73,11 @@ function App() {
       {/* Header */}
       <header className="bg-[#008080] text-white fixed w-full z-10">
         <div className="container mx-auto flex justify-between items-center py-4 px-6">
-          <h1 className="text-4xl font-bold">Gibi Info</h1>
+          {/* <h1 className="text-4xl font-bold">Gibi Info</h1> */}
+          <div className="logo flex justify-center items-center">
+            <img src={logo} className="w-20" />
+            <span className="inline text-4xl font-bold">Gibi Info</span>
+          </div>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -287,7 +292,10 @@ function App() {
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Left - Brand & Social Media */}
           <div>
-            <h2 className="text-3xl font-bold text-[#40A0A0]">Gibi Info</h2>
+            <div className="logo flex items-center">
+              <img src={logo} className="w-20" />
+              <span className="inline text-4xl font-semibold">Gibi Info</span>
+            </div>
             <p className="text-gray-400 mt-4">
               Over <span className="text-white font-semibold">2,000</span>{" "}
               satisfied users worldwide.
