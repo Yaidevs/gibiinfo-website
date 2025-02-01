@@ -3,7 +3,7 @@ import React from "react";
 const FeaturesSection = () => {
   return (
     <section className="py-16 bg-[#008080]">
-      <div id="features" className="container mx-auto px-6 text-center">
+      <div id="featured" className="container mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold text-white">Why Choose GibiInfo?</h2>
         <p className="text-gray-300 mt-4">
           Master your subjects with GibiInfo's comprehensive practice questions and detailed explanations.

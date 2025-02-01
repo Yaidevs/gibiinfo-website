@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { MdMenu, MdClose } from "react-icons/md";
 import logo from "../assets/logo.png";
+import { Link } from "react-router-dom";
 
 const Header = ({ menuOpen, setMenuOpen }) => {
   const menuRef = useRef(null);
@@ -26,11 +27,12 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     <header className="bg-[#008080] text-white fixed w-full z-20">
       <div className="w-full max-w-[1440px] mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <div className="flex items-center">
-          <img src={logo} className="w-16 h-auto" alt="Gibi Info Logo" />
-          <span className="text-3xl font-bold">Gibi Info</span>
-        </div>
-
+        <a href="#home">
+          <div className="flex items-center">
+            <img src={logo} className="w-16 h-auto" alt="Gibi Info Logo" />
+            <span className="text-3xl font-bold">Gibi Info</span>
+          </div>
+        </a>
         {/* Mobile Menu Button */}
         <button
           className="lg:hidden text-white focus:outline-none"

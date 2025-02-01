@@ -58,8 +58,11 @@ function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="bg-white py-16 relative">
-      <div className="container mx-auto px-6 flex flex-col items-center">
+    <section className="bg-white py-16 relative">
+      <div
+        id="testimonial"
+        className="container mx-auto px-6 flex flex-col items-center"
+      >
         <h2 className="text-2xl lg:text-4xl p-2 font-bold text-gray-700 leading-tight mb-6">
           What Students Say About Our App?
         </h2>

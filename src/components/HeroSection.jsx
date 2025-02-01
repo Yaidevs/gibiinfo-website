@@ -3,7 +3,7 @@ import img1 from "../assets/image 5.png";
 
 const HeroSection = () => {
   return (
-    <section id="hero" className="bg-[#008080] py-32 pt-[160px]">
+    <section id="home" className="bg-[#008080] py-32 pt-[160px]">
       <div className="container mx-auto flex flex-col lg:flex-row items-center px-6 text-center lg:text-left">
         <div className="lg:w-1/2">
           <h1 className="text-3xl text-white sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6">
