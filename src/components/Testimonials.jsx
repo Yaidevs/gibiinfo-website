@@ -58,7 +58,7 @@ function Testimonials() {
   };
 
   return (
-    <section className="bg-white py-16 relative">
+    <section className="bg-white py-12 relative mb-16">
       <div
         id="testimonial"
         className="container mx-auto px-6 flex flex-col items-center"
@@ -74,7 +74,7 @@ function Testimonials() {
                 key={testimonials[index].image}
                 src={testimonials[index].image}
                 alt={testimonials[index].name}
-                className="rounded-lg w-full max-w-sm lg:max-w-md shadow-lg"
+                className="rounded-lg w-full max-w-sm lg:max-w-md h-[300px] object-cover shadow-lg"
                 initial={{ opacity: 0, scale: 0.9, x: -50 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.9, x: 50 }}
