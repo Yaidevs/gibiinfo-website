@@ -17,7 +17,7 @@ const AboutSection = () => {
           </button>
         </div>
         <div className="mt-16 flex justify-center">
-          <img src={img2} alt="Profile Builder" className="w-[700px] h-auto rounded-lg" />
+          <img src={img2} alt="Profile Builder" className="w-[700px] px-2 h-auto rounded-lg" />
         </div>
       </div>
     </section>
