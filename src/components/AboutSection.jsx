@@ -5,10 +5,10 @@ const AboutSection = () => {
   return (
     <section className="bg-white py-16">
       <div id="aboutus" className="container mx-auto text-center">
-        <h2 className="text-3xl lg:text-4xl font-bold text-gray-800">
+        <h2 className="text-3xl px-2 lg:text-4xl font-bold text-gray-800">
           Access thousands of practice questions across various subjects.
         </h2>
-        <p className="text-gray-600 mt-4 break-words max-w-md mx-auto">
+        <p className="text-gray-600 px-2 mt-4 break-words max-w-md mx-auto">
           Gibi Info empowers students to achieve academic excellence through innovative learning solutions.
         </p>
         <div className="mt-12 flex justify-center gap-16">

@@ -23,16 +23,15 @@ const HeroSection = () => {
             alt="Mobile UI 1"
             className="w-full h-auto rounded-lg"
           />
-
           {/* Embedded Frame - Visible on Small Screens, Hidden on Large Screens */}
-          <iframe
+          {/* <iframe
             className="block lg:hidden w-full max-w-xs md:max-w-sm h-80  mt-24 rounded-lg"
             src="https://www.youtube.com/embed/dQw4w9WgXcQ"
             title="How to Use the App"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-          ></iframe>
+          ></iframe> */}
         </div>
       </div>
     </section>
