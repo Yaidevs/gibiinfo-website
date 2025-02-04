@@ -63,7 +63,10 @@ const Header = ({ menuOpen, setMenuOpen }) => {
 
         {/* Desktop Buttons */}
         <div className="hidden lg:flex space-x-4">
-          <button className="bg-transparent border border-white text-white px-4 py-2 rounded-md">
+          <button
+            onClick={() => window.open("https://t.me/enterance_exam", "_blank")}
+            className="bg-transparent border border-white text-white px-4 py-2 rounded-md"
+          >
             Download
           </button>
         </div>

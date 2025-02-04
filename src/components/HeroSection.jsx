@@ -13,7 +13,10 @@ const HeroSection = () => {
             Master your subjects with GibiInfo's comprehensive practice
             questions and detailed explanations.
           </p>
-          <button className="mt-6 bg-white text-[#008080] px-6 py-3 rounded-md">
+          <button
+            onClick={() => window.open("https://t.me/enterance_exam", "_blank")}
+            className="mt-6 bg-white text-[#008080] px-6 py-3 rounded-md"
+          >
             Download
           </button>
         </div>
