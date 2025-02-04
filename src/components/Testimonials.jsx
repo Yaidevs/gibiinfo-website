@@ -8,7 +8,7 @@ import { GrCaretPrevious } from "react-icons/gr";
 function Testimonials() {
   const testimonials = [
     {
-      name: "Caalaa Bulcha",
+      name: "Chala Bulcha",
       role: "High School Student",
       image: test1,
       quote:

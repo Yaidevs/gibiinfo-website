@@ -21,12 +21,12 @@ const HeroSection = () => {
           <img
             src={img1}
             alt="Mobile UI 1"
-            className="w-full max-w-xs md:max-w-sm lg:max-w-md h-auto rounded-lg"
+            className="w-full h-auto rounded-lg"
           />
 
           {/* Embedded Frame - Visible on Small Screens, Hidden on Large Screens */}
           <iframe
-            className="block lg:hidden w-full max-w-xs md:max-w-sm h-56 mt-24 rounded-lg"
+            className="block lg:hidden w-full max-w-xs md:max-w-sm h-80  mt-24 rounded-lg"
             src="https://www.youtube.com/embed/dQw4w9WgXcQ"
             title="How to Use the App"
             frameBorder="0"
