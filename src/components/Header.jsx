@@ -27,12 +27,12 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     <header className="bg-[#008080] text-white fixed w-full z-20">
       <div className="w-full max-w-[1440px] mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <a href="#home">
+        <Link to="/">
           <div className="flex items-center">
             <img src={logo} className="w-16 h-auto" alt="Gibi Info Logo" />
             <span className="text-3xl font-bold">Gibi Info</span>
           </div>
-        </a>
+        </Link>
         {/* Mobile Menu Button */}
         <button
           className="lg:hidden text-white focus:outline-none"
@@ -50,14 +50,21 @@ const Header = ({ menuOpen, setMenuOpen }) => {
         >
           <div className="lg:flex lg:space-x-6 text-center lg:text-left py-6 lg:py-0 w-full lg:w-auto">
             {["Home", "About Us", "Featured", "Testimonial"].map((item) => (
-              <a
-                href={`#${item.toLowerCase().replace(" ", "")}`}
+              <Link
+                to={`/#${item.toLowerCase().replace(" ", "")}`}
                 className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
                 key={item}
               >
                 {item}
-              </a>
+              </Link>
             ))}
+            {/* Exit Exam Link */}
+            <Link
+              to="/exit-exam"
+              className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+            >
+              Exit Exam
+            </Link>
           </div>
         </nav>
 
