@@ -46,16 +46,16 @@ export default function ExamGenerator() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12 pt-[80px]">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8 mt-[44px]">
+    <div className="bg-gray-50 min-h-screen pt-[80px] py-12">
+      <div className="bg-white p-8 rounded-xl shadow-md max-w-md md:max-w-2xl mt-[44px] mx-auto overflow-hidden">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Generate {departmentNames[department]} Exit Exam</h1>
-          <p className="mt-2 text-sm text-gray-600">Customize your exam settings below</p>
+          <h1 className="text-2xl text-gray-900 font-bold">Generate {departmentNames[department]} Exit Exam</h1>
+          <p className="text-gray-600 text-sm mt-2">Customize your exam settings below</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* <div className="mb-6">
-            <label htmlFor="numQuestions" className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="mb-6">
+            <label htmlFor="numQuestions" className="text-gray-700 text-sm block font-medium mb-1">
               Number of Questions
             </label>
             <input
@@ -67,9 +67,9 @@ export default function ExamGenerator() {
               step="5"
               value={formData.numQuestions}
               onChange={handleChange}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="bg-gray-200 h-2 rounded-lg w-full appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-gray-600 mt-1">
+            <div className="flex justify-between text-gray-600 text-xs mt-1">
               <span>10</span>
               <span>{formData.numQuestions} questions</span>
               <span>50</span>
@@ -77,7 +77,7 @@ export default function ExamGenerator() {
           </div>
 
           <div className="mb-8">
-            <label htmlFor="timeLimit" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="timeLimit" className="text-gray-700 text-sm block font-medium mb-1">
               Time Limit (minutes)
             </label>
             <input
@@ -89,9 +89,9 @@ export default function ExamGenerator() {
               step="15"
               value={formData.timeLimit}
               onChange={handleChange}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="bg-gray-200 h-2 rounded-lg w-full appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-gray-600 mt-1">
+            <div className="flex justify-between text-gray-600 text-xs mt-1">
               <span>15 min</span>
               <span>{formData.timeLimit} minutes</span>
               <span>120 min</span>
@@ -99,14 +99,14 @@ export default function ExamGenerator() {
           </div>
 
           <div className="bg-blue-50 p-4 rounded-lg mb-6">
-            <h3 className="font-medium text-blue-800 mb-2">Exam Summary</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
+            <h3 className="text-blue-800 font-medium mb-2">Exam Summary</h3>
+            <ul className="text-blue-700 text-sm space-y-1">
               <li>Department: {departmentNames[department]}</li>
               <li>Number of Questions: {formData.numQuestions}</li>
               <li>Time Limit: {formData.timeLimit} minutes</li>
               <li>Question Types: Multiple Choice</li>
             </ul>
-          </div> */}
+          </div>
 
           <button
             type="submit"
@@ -118,7 +118,7 @@ export default function ExamGenerator() {
             {loading ? (
               <>
                 <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  className="h-5 text-white w-5 -ml-1 animate-spin mr-3"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
