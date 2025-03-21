@@ -23,6 +23,9 @@ export const exitexamApi = createApi({
     getExitExamQuestions: builder.query({
       query: (id) => `/exit-question/by/exit-exam/${id}`,
     }),
+    getExitExamByDepartment: builder.query({
+      query: (id) => `/exit-exam/by/department/${id}`,
+    }),
     getDepartmentById: builder.query({
       query: (id) => ({ url: `/department/${id}` }),
     }),
@@ -71,4 +74,5 @@ export const {
   useUpdateExitQuestionMutation,
   useGetDepartmentsQuery,
   useGetDepartmentByIdQuery,
+  useGetExitExamByDepartmentQuery,
 } = exitexamApi;

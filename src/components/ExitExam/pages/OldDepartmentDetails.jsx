@@ -289,7 +289,7 @@ const DepartmentDetails = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
   const { data: departmentexitexam } = useGetExitExamByDepartmentQuery(id);
-  console.log("DAAW", departmentexitexam?.data);
+  console.log('DAAW',departmentexitexam?.data)
 
   // Get department data based on ID from URL
   const department = departmentData[id] || departmentData.dept1;
@@ -472,22 +472,88 @@ const DepartmentDetails = () => {
                 Exit Exams
               </h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {departmentexitexam?.data.map((exam) => (
+                {department.exitExams.map((exam) => (
                   <div
-                    key={exam._id}
-                    className={`relative overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg`}
+                    key={exam.id}
+                    className={`relative overflow-hidden rounded-xl shadow-md transition-all duration-300 hover:shadow-lg ${
+                      exam.isFree ? "bg-white" : "bg-gray-50"
+                    }`}
                   >
+                    {/* Locked/Unlocked badge */}
+                    <div
+                      className={`absolute top-4 right-4 p-2 rounded-full ${
+                        exam.isFree
+                          ? "bg-green-100 text-green-600"
+                          : "bg-amber-100 text-amber-600"
+                      }`}
+                    >
+                      {exam.isFree ? (
+                        <FaLockOpen size={18} />
+                      ) : (
+                        <FaLock size={18} />
+                      )}
+                    </div>
+
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-2">
                         {exam.title}
                       </h3>
+                      <p className="text-gray-600 mb-4">{exam.description}</p>
 
-                      <Link
-                        to={`/generate-exam/${exam._id}`}
-                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700"
-                      >
-                        Start Exam
-                      </Link>
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                          <span className="block text-sm text-gray-500">
+                            Questions
+                          </span>
+                          <span className="font-semibold">
+                            {exam.questionCount}
+                          </span>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                          <span className="block text-sm text-gray-500">
+                            Duration
+                          </span>
+                          <span className="font-semibold">{exam.duration}</span>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                          <span className="block text-sm text-gray-500">
+                            Difficulty
+                          </span>
+                          <span className="font-semibold">
+                            {exam.difficulty}
+                          </span>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                          <span className="block text-sm text-gray-500">
+                            Status
+                          </span>
+                          <span
+                            className={`font-semibold ${
+                              exam.isFree ? "text-green-600" : "text-amber-600"
+                            }`}
+                          >
+                            {exam.isFree ? "Free" : `Premium (${exam.price})`}
+                          </span>
+                        </div>
+                      </div>
+
+                      {exam.isFree ? (
+                        <Link
+                          to={`/generate-exam/${id}`}
+                          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700"
+                        >
+                          Start Exam
+                        </Link>
+                      ) : (
+                        <div className="space-y-3">
+                          <button className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700">
+                            Purchase ({exam.price})
+                          </button>
+                          <p className="text-xs text-center text-gray-500">
+                            Unlock this premium exam to access all questions
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

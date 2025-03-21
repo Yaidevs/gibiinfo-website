@@ -2,26 +2,52 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useParams, useLocation, useNavigate } from "react-router-dom"
+import { accountingQuestions } from "../data/accountingQuestions"
+import { managementQuestions } from "../data/managementQuestions"
+import { marketingQuestions } from "../data/marketingQuestions"
+import { economicsQuestions } from "../data/economicsQuestions"
+import { financeQuestions } from "../data/financeQuestions"
 import { Flag } from "lucide-react"
-import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
 
-export default function ExamInterface() {
-  const { id } = useParams() // Get exam ID from URL params
+export default function OldExamInterface() {
+  const { department } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-
-  // Fetch questions from API
-  const { data: examData, isLoading, isError } = useGetExitExamQuestionsQuery (id)
 
   // Get exam settings from location state or use defaults
   const numQuestions = location.state?.numQuestions || 20
   const timeLimit = location.state?.timeLimit || 1
 
-  const [examQuestions, setExamQuestions] = useState([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState([])
-  const [flaggedQuestions, setFlaggedQuestions] = useState([])
-  const [flaggedTimestamps, setFlaggedTimestamps] = useState([])
+  // Get the appropriate question set based on department
+  const getQuestionsByDepartment = () => {
+    switch (department) {
+      case "accounting":
+        return accountingQuestions
+      case "management":
+        return managementQuestions
+      case "marketing":
+        return marketingQuestions
+      case "economics":
+        return economicsQuestions
+      case "finance":
+        return financeQuestions
+      default:
+        return accountingQuestions
+    }
+  }
+
+  // Select random questions from the department's question pool
+  const selectRandomQuestions = (questions, count) => {
+    const shuffled = [...questions].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, count)
+  }
+
+  const allQuestions = getQuestionsByDepartment()
+  const [examQuestions] = useState(() => selectRandomQuestions(allQuestions, numQuestions))
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0) // Start at question 5 to match image
+  const [answers, setAnswers] = useState(Array(examQuestions.length).fill(null))
+  const [flaggedQuestions, setFlaggedQuestions] = useState(Array(examQuestions.length).fill(false))
+  const [flaggedTimestamps, setFlaggedTimestamps] = useState(Array(examQuestions.length).fill(null))
   const [timeRemaining, setTimeRemaining] = useState(timeLimit * 3600) // Convert hours to seconds
   const [examSubmitted, setExamSubmitted] = useState(false)
   const [showResultsPopup, setShowResultsPopup] = useState(false)
@@ -29,20 +55,6 @@ export default function ExamInterface() {
   const [incorrectQuestions, setIncorrectQuestions] = useState([])
 
   const timerRef = useRef(null)
-
-  // Initialize exam questions when data is loaded
-  useEffect(() => {
-    if (examData?.data?.questions && examData.data.questions.length > 0) {
-      // Use all questions or limit to numQuestions if specified
-      const questions = examData.data.questions.slice(0, numQuestions)
-      setExamQuestions(questions)
-
-      // Initialize answers, flagged questions, and timestamps arrays
-      setAnswers(Array(questions.length).fill(null))
-      setFlaggedQuestions(Array(questions.length).fill(false))
-      setFlaggedTimestamps(Array(questions.length).fill(null))
-    }
-  }, [examData, numQuestions])
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -145,11 +157,7 @@ export default function ExamInterface() {
     const incorrect = []
 
     examQuestions.forEach((question, index) => {
-      // Check if the selected answer matches the correct answer
-      // The API provides the correct answer as "option1", "option2", etc.
-      const correctOptionIndex = Number.parseInt(question.answer.replace("option", "")) - 1
-
-      if (answers[index] === correctOptionIndex) {
+      if (answers[index] === question.correctAnswer) {
         correct++
       } else {
         incorrect.push(index)
@@ -188,22 +196,8 @@ export default function ExamInterface() {
     }
   }
 
-  // Get options array from current question
-  const getOptionsFromQuestion = (question) => {
-    if (!question) return []
-    return [question.option1, question.option2, question.option3, question.option4]
-  }
-
-  // Get correct answer index (0-based) from current question
-  const getCorrectAnswerIndex = (question) => {
-    if (!question) return 0
-    return Number.parseInt(question.answer.replace("option", "")) - 1
-  }
-
   // Current question data
   const currentQuestion = examQuestions[currentQuestionIndex]
-  const options = currentQuestion ? getOptionsFromQuestion(currentQuestion) : []
-  const correctAnswerIndex = currentQuestion ? getCorrectAnswerIndex(currentQuestion) : 0
 
   // Results popup
   const ResultsPopup = () => {
@@ -256,57 +250,10 @@ export default function ExamInterface() {
     )
   }
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="bg-white min-h-screen pt-32 flex justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Loading Exam Questions...</h2>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
-        </div>
-      </div>
-    )
-  }
-
-  // Error state
-  if (isError || !examData) {
-    return (
-      <div className="bg-white min-h-screen pt-32 flex justify-center">
-        <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Exam</h2>
-          <p className="text-gray-700 mb-6">There was a problem loading the exam questions. Please try again later.</p>
-          <button
-            onClick={() => navigate("/departments")}
-            className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
-          >
-            Return to Departments
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // If no questions are available
-  if (examQuestions.length === 0) {
-    return (
-      <div className="bg-white min-h-screen pt-32 flex justify-center">
-        <div className="text-center max-w-md">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">No Questions Available</h2>
-          <p className="text-gray-700 mb-6">This exam doesn't have any questions yet. Please try another exam.</p>
-          <button
-            onClick={() => navigate("/departments")}
-            className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
-          >
-            Return to Departments
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   // If in review mode after submission
   if (examSubmitted && reviewMode) {
     const isIncorrect = incorrectQuestions.includes(currentQuestionIndex)
+    const correctAnswerIndex = currentQuestion.correctAnswer
 
     return (
       <div className="bg-white min-h-screen pt-32">
@@ -332,10 +279,10 @@ export default function ExamInterface() {
 
                 {/* Question Content */}
                 <div className="flex-grow p-6 bg-blue-50">
-                  <p className="text-gray-800 mb-6 text-lg">{currentQuestion.questionText}</p>
+                  <p className="text-gray-800 mb-6 text-lg">{currentQuestion.question}</p>
 
                   <div className="space-y-4">
-                    {options.map((option, index) => (
+                    {currentQuestion.options.map((option, index) => (
                       <div key={index} className="flex items-start">
                         <input
                           type="radio"
@@ -365,8 +312,8 @@ export default function ExamInterface() {
                   <div className="mt-8 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                     <h3 className="font-medium text-yellow-800 mb-2">Explanation:</h3>
                     <p className="text-yellow-800">
-                      {currentQuestion.explanation ||
-                        `The correct answer is ${String.fromCharCode(65 + correctAnswerIndex)}. ${options[correctAnswerIndex]}`}
+                      The correct answer is {String.fromCharCode(65 + correctAnswerIndex)}.{" "}
+                      {currentQuestion.options[correctAnswerIndex]}
                     </p>
                   </div>
                 </div>
@@ -458,10 +405,10 @@ export default function ExamInterface() {
 
               {/* Question Content */}
               <div className="flex-grow p-6 bg-[#D9F1F1]">
-                <p className="text-gray-800 mb-6 text-lg">{currentQuestion.questionText}</p>
+                <p className="text-gray-800 mb-6 text-lg">{currentQuestion.question}</p>
 
                 <div className="space-y-4 mt-8">
-                  {options.map((option, index) => (
+                  {currentQuestion.options.map((option, index) => (
                     <div key={index} className="flex items-start">
                       <input
                         type="radio"

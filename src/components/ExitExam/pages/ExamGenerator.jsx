@@ -1,10 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { useGetExitExamQuestionsQuery } from "../data/api/dataApi";
+
 
 export default function ExamGenerator() {
-  const { department } = useParams()
+  const { id } = useParams()
+  const { exam } = useGetExitExamQuestionsQuery(id);
+  console.log('EXXXX',exam?.data)
+
+
+useEffect(() => {
+  console.log("Exam Data Updated:", exam);
+}, [exam]);
+
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -12,14 +22,14 @@ export default function ExamGenerator() {
     timeLimit: 2,
   })
 
-  const departmentNames = {
-    accounting: "Accounting",
-    management: "Management",
-    marketing: "Marketing",
-    economics: "Economics",
-    finance: "Finance",
-    "information-systems": "Information Systems",
-  }
+  // const departmentNames = {
+  //   accounting: "Accounting",
+  //   management: "Management",
+  //   marketing: "Marketing",
+  //   economics: "Economics",
+  //   finance: "Finance",
+  //   "information-systems": "Information Systems",
+  // }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -36,7 +46,7 @@ export default function ExamGenerator() {
     // Simulate loading
     setTimeout(() => {
       setLoading(false)
-      navigate(`/exam/${department}`, {
+      navigate(`/exam/${id}`, {
         state: {
           numQuestions: formData.numQuestions,
           timeLimit: formData.timeLimit,
@@ -49,7 +59,7 @@ export default function ExamGenerator() {
     <div className="bg-gray-50 min-h-screen pt-[80px] py-12">
       <div className="bg-white p-8 rounded-xl shadow-md max-w-md md:max-w-2xl mt-[44px] mx-auto overflow-hidden">
         <div className="text-center mb-8">
-          <h1 className="text-2xl text-gray-900 font-bold">Generate {departmentNames[department]} Exit Exam</h1>
+          <h1 className="text-2xl text-gray-900 font-bold">Generate Exit Exam</h1>
           <p className="text-gray-600 text-sm mt-2">Customize your exam settings below</p>
         </div>
 
@@ -98,7 +108,7 @@ export default function ExamGenerator() {
             </div>
           </div>
 
-          <div className="bg-blue-50 p-4 rounded-lg mb-6">
+          {/* <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <h3 className="text-blue-800 font-medium mb-2">Exam Summary</h3>
             <ul className="text-blue-700 text-sm space-y-1">
               <li>Department: {departmentNames[department]}</li>
@@ -106,11 +116,11 @@ export default function ExamGenerator() {
               <li>Time Limit: {formData.timeLimit} minutes</li>
               <li>Question Types: Multiple Choice</li>
             </ul>
-          </div>
+          </div> */}
 
           <button
             type="submit"
-            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#008080] ${
+            className={`w-full >flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#008080] ${
               loading ? "opacity-75 cursor-not-allowed" : ""
             }`}
             disabled={loading}
