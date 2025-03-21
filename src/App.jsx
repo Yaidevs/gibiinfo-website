@@ -10,6 +10,7 @@ import ExitExamHome from "./components/ExitExam/pages/ExitExamHome";
 import DepartmentList from "./components/ExitExam/pages/DepartmentList";
 import ExamGenerator from "./components/ExitExam/pages/ExamGenerator";
 import ExamInterface from "./components/ExitExam/pages/ExamInterface";
+import DepartmentDetails from "./components/ExitExam/pages/DepartmentDetails";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -49,6 +50,7 @@ function App() {
               </>
             }
           />
+          <Route path="/department/:id" element={<DepartmentDetails />} />
           <Route
             path="/generate-exam/:department"
             element={
