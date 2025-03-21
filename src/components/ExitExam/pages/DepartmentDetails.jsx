@@ -292,7 +292,7 @@ const DepartmentDetails = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
   const { data: departmentDetail } = useGetDepartmentByIdQuery(id);
-  console.log('Depa...',departmentDetail?.data.name)
+  console.log("Depa...", departmentDetail?.data.name);
   const { data: departmentexitexam } = useGetExitExamByDepartmentQuery(id);
   console.log("DAAW", departmentexitexam?.data);
 
@@ -325,7 +325,9 @@ const DepartmentDetails = () => {
               <h1 className="mt-1 text-3xl font-bold text-gray-900">
                 {departmentDetail?.data.name}
               </h1>
-              <p className="mt-4 text-gray-600">{departmentDetail?.data.name}</p>
+              <p className="mt-4 text-gray-600">
+                {departmentDetail?.data.name}
+              </p>
             </div>
           </div>
         </div>
@@ -380,11 +382,11 @@ const DepartmentDetails = () => {
                     About the Department
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    The {departmentDetail?.data.name} department is committed to providing
-                    students with a comprehensive education that combines
-                    theoretical knowledge with practical skills. Our curriculum
-                    is designed to prepare students for successful careers in
-                    the field.
+                    The {departmentDetail?.data.name} department is committed to
+                    providing students with a comprehensive education that
+                    combines theoretical knowledge with practical skills. Our
+                    curriculum is designed to prepare students for successful
+                    careers in the field.
                   </p>
                   <p className="text-gray-600">
                     Students will learn from experienced faculty members who are
@@ -434,7 +436,7 @@ const DepartmentDetails = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
                 Curriculum
               </h2>
-              <div className="space-y-8">
+              {/* <div className="space-y-8">
                 {department.yearlySubjects.map((yearData, index) => (
                   <div
                     key={index}
@@ -466,7 +468,7 @@ const DepartmentDetails = () => {
                     </div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
           )}
 
