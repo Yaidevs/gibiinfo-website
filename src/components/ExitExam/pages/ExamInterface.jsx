@@ -1,21 +1,29 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useParams, useLocation, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { Flag } from "lucide-react"
 import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
 
 export default function ExamInterface() {
   const { id } = useParams() // Get exam ID from URL params
-  const location = useLocation()
   const navigate = useNavigate()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [questionsPerPage, setQuestionsPerPage] = useState(100)
+
+  // Set time limit directly in the component (in hours)
+  const timeLimit = 1.5 // 1.5 hours for the exam
 
   // Fetch questions from API
-  const { data: examData, isLoading, isError } = useGetExitExamQuestionsQuery (id)
-
-  // Get exam settings from location state or use defaults
-  const numQuestions = location.state?.numQuestions || 20
-  const timeLimit = location.state?.timeLimit || 1
+  const {
+    data: examData,
+    isLoading,
+    isError,
+  } = useGetExitExamQuestionsQuery({
+    id,
+    page: currentPage,
+    limit: questionsPerPage,
+  })
 
   const [examQuestions, setExamQuestions] = useState([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -33,8 +41,8 @@ export default function ExamInterface() {
   // Initialize exam questions when data is loaded
   useEffect(() => {
     if (examData?.data?.questions && examData.data.questions.length > 0) {
-      // Use all questions or limit to numQuestions if specified
-      const questions = examData.data.questions.slice(0, numQuestions)
+      // Use all questions from the API
+      const questions = examData.data.questions
       setExamQuestions(questions)
 
       // Initialize answers, flagged questions, and timestamps arrays
@@ -42,7 +50,7 @@ export default function ExamInterface() {
       setFlaggedQuestions(Array(questions.length).fill(false))
       setFlaggedTimestamps(Array(questions.length).fill(null))
     }
-  }, [examData, numQuestions])
+  }, [examData])
 
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -61,11 +69,17 @@ export default function ExamInterface() {
 
   // Handle timer
   useEffect(() => {
-    if (timeRemaining <= 0) return
+    if (timeRemaining <= 0) {
+      // Auto-submit when time runs out
+      handleSubmitExam()
+      return
+    }
 
     const timer = setInterval(() => {
       setTimeRemaining((prev) => prev - 1)
     }, 1000)
+
+    timerRef.current = timer
 
     return () => clearInterval(timer)
   }, [timeRemaining])
@@ -319,9 +333,9 @@ export default function ExamInterface() {
           <div className="flex flex-col md:flex-row mt-24 min-h-screen">
             {/* Main Exam Area */}
             <div className="flex-grow">
-              <div className="flex">
+              <div className="flex flex-col md:flex-row">
                 {/* Question Number */}
-                <div className="w-48 h-[140px] bg-gray-200 p-4 mr-2">
+                <div className="w-full md:w-48 h-auto md:h-[140px] bg-gray-200 p-4 mb-4 md:mb-0 md:mr-2">
                   <div className="text-gray-700">
                     <h2 className="text-2xl font-bold text-gray-600">
                       Question {currentQuestionIndex + 1}/{examQuestions.length}
@@ -332,7 +346,10 @@ export default function ExamInterface() {
 
                 {/* Question Content */}
                 <div className="flex-grow p-6 bg-blue-50">
-                  <p className="text-gray-800 mb-6 text-lg">{currentQuestion.questionText}</p>
+                  <p className="text-gray-800 mb-6 text-lg">
+                    <span className="font-bold">{currentQuestionIndex + 1}. </span>
+                    {currentQuestion.questionText}
+                  </p>
 
                   <div className="space-y-4">
                     {options.map((option, index) => (
@@ -366,14 +383,16 @@ export default function ExamInterface() {
                     <h3 className="font-medium text-yellow-800 mb-2">Explanation:</h3>
                     <p className="text-yellow-800">
                       {currentQuestion.explanation ||
-                        `The correct answer is ${String.fromCharCode(65 + correctAnswerIndex)}. ${options[correctAnswerIndex]}`}
+                        `The correct answer is ${String.fromCharCode(
+                          65 + correctAnswerIndex,
+                        )}. ${options[correctAnswerIndex]}`}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between">
+              <div className="flex justify-between mt-4">
                 <button
                   onClick={goToPrevious}
                   className="w-32 py-3 bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -398,7 +417,7 @@ export default function ExamInterface() {
             </div>
 
             {/* Exam Navigation */}
-            <div className="w-full md:w-80 bg-gray-200 p-4 ml-2 max-h-[500px]">
+            <div className="w-full md:w-80 bg-gray-200 p-4 mt-4 md:mt-0 md:ml-2 overflow-y-auto max-h-[500px]">
               <div className="mb-2">
                 <h3 className="text-center font-medium text-gray-700">Question Navigation</h3>
               </div>
@@ -439,13 +458,13 @@ export default function ExamInterface() {
             <div className="flex justify-center py-2">
               <div className="inline-flex items-center px-3 py-1 border border-red-500 rounded">
                 <span className="mr-2">⏱️</span>
-                <span>Time left {formatTime(timeRemaining)} sec</span>
+                <span>Time left {formatTime(timeRemaining)}</span>
               </div>
             </div>
 
-            <div className="flex">
+            <div className="flex flex-col md:flex-row">
               {/* Question Number */}
-              <div className="w-48 h-[120px] bg-gray-200 p-4 mr-2">
+              <div className="w-full md:w-48 h-auto md:h-[120px] bg-gray-200 p-4 mb-4 md:mb-0 md:mr-2">
                 <div className="text-gray-700">
                   <h2 className="text-2xl font-bold text-gray-600">
                     Question {currentQuestionIndex + 1}/{examQuestions.length}
@@ -458,7 +477,10 @@ export default function ExamInterface() {
 
               {/* Question Content */}
               <div className="flex-grow p-6 bg-[#D9F1F1]">
-                <p className="text-gray-800 mb-6 text-lg">{currentQuestion.questionText}</p>
+                <p className="text-gray-800 mb-6 text-lg">
+                  <span className="font-bold">{currentQuestionIndex + 1}. </span>
+                  {currentQuestion.questionText}
+                </p>
 
                 <div className="space-y-4 mt-8">
                   {options.map((option, index) => (
@@ -496,7 +518,7 @@ export default function ExamInterface() {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex justify-between mt-4">
               <button
                 onClick={goToPrevious}
                 className="w-32 py-3 bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -515,7 +537,10 @@ export default function ExamInterface() {
           </div>
 
           {/* Exam Navigation */}
-          <div className="w-full md:w-80 bg-[#E7E5E5] p-4 ml-2">
+          <div
+            className="w-full md:w-80 bg-[#E7E5E5] p-4 mt-4 md:mt-0 md:ml-2 overflow-y-auto"
+            style={{ maxHeight: "500px" }}
+          >
             <div className="mb-2">
               <h3 className="text-center font-medium text-gray-700">Exam Navigation</h3>
             </div>
@@ -525,7 +550,7 @@ export default function ExamInterface() {
                 <div key={i} className="relative">
                   <button
                     onClick={() => goToQuestion(i)}
-                    className={`h-16 w-full flex items-center justify-center text-center border border-gray-300 ${
+                    className={`h-12 w-full flex items-center justify-center text-center border border-gray-300 ${
                       currentQuestionIndex === i
                         ? "bg-gray-500 text-white"
                         : answers[i] !== null

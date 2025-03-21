@@ -21,7 +21,16 @@ export const exitexamApi = createApi({
       query: () => `${apiBasePath}`,
     }),
     getExitExamQuestions: builder.query({
-      query: (id) => `/exit-question/by/exit-exam/${id}`,
+      query: (params) => {
+        // If params is just an ID string, handle it for backward compatibility
+        if (typeof params === "string") {
+          return `/exit-question/by/exit-exam/${params}`;
+        }
+
+        // Otherwise, extract id, page, and limit from params
+        const { id, page = 1, limit = 100 } = params;
+        return `/exit-question/by/exit-exam/${id}?page=${page}&limit=${limit}`;
+      },
     }),
     getExitExamByDepartment: builder.query({
       query: (id) => `/exit-exam/by/department/${id}`,
