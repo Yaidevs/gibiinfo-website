@@ -10,7 +10,10 @@ import {
   FaBook,
   FaCalendarAlt,
 } from "react-icons/fa";
-import { useGetExitExamByDepartmentQuery } from "../data/api/dataApi";
+import {
+  useGetDepartmentByIdQuery,
+  useGetExitExamByDepartmentQuery,
+} from "../data/api/dataApi";
 
 // Static data for department details
 const departmentData = {
@@ -288,6 +291,8 @@ const departmentData = {
 const DepartmentDetails = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const { data: departmentDetail } = useGetDepartmentByIdQuery(id);
+  console.log('Depa...',departmentDetail?.data.name)
   const { data: departmentexitexam } = useGetExitExamByDepartmentQuery(id);
   console.log("DAAW", departmentexitexam?.data);
 
@@ -318,9 +323,9 @@ const DepartmentDetails = () => {
                 Department
               </div>
               <h1 className="mt-1 text-3xl font-bold text-gray-900">
-                {department.name}
+                {departmentDetail?.data.name}
               </h1>
-              <p className="mt-4 text-gray-600">{department.description}</p>
+              <p className="mt-4 text-gray-600">{departmentDetail?.data.name}</p>
             </div>
           </div>
         </div>
@@ -375,7 +380,7 @@ const DepartmentDetails = () => {
                     About the Department
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    The {department.name} department is committed to providing
+                    The {departmentDetail?.data.name} department is committed to providing
                     students with a comprehensive education that combines
                     theoretical knowledge with practical skills. Our curriculum
                     is designed to prepare students for successful careers in
