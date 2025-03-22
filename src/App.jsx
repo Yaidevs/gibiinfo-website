@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import AboutSection from "./components/AboutSection";
@@ -13,11 +13,22 @@ import ExamInterface from "./components/ExitExam/pages/ExamInterface";
 import DepartmentDetails from "./components/ExitExam/pages/DepartmentDetails";
 import OldExamInterface from "./components/ExitExam/pages/OldExamInterface";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="font-sans">
         <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
         <Routes>
