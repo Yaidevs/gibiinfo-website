@@ -465,7 +465,7 @@ export default function ExamInterface() {
           <div className="flex-grow">
             <div className="flex flex-col md:flex-row">
               {/* Question Number */}
-              <div className="w-full md:w-48 h-auto md:h-[120px] bg-gray-200 p-4 mb-4 md:mb-0 md:mr-2">
+              <div className="w-full md:w-48 h-auto md:h-[140px] bg-gray-200 p-4 mb-4 md:mb-0 md:mr-2">
                 <div className="text-gray-700">
                   <h2 className="text-2xl font-bold text-gray-600">
                     Question {currentQuestionIndex + 1}/{examQuestions.length}
