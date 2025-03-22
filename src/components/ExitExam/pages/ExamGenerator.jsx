@@ -60,9 +60,9 @@ export default function ExamGenerator() {
           <h1 className="text-2xl text-gray-900 font-bold">
             Generate Exit Exam
           </h1>
-          <p className="text-gray-600 text-sm mt-2">
+          {/* <p className="text-gray-600 text-sm mt-2">
             Customize your exam settings below
-          </p>
+          </p> */}
         </div>
 
         <form onSubmit={handleSubmit}>

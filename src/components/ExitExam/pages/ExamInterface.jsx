@@ -476,7 +476,7 @@ export default function ExamInterface() {
               </div>
 
               {/* Question Content */}
-              <div className="flex-grow p-6 bg-[#D9F1F1]">
+              <div className="flex-grow w-64 p-6 bg-[#D9F1F1]">
                 <p className="text-gray-800 mb-6 text-lg">
                   <span className="font-bold">{currentQuestionIndex + 1}. </span>
                   {currentQuestion.questionText}
@@ -539,7 +539,7 @@ export default function ExamInterface() {
           {/* Exam Navigation */}
           <div
             className="w-full md:w-80 bg-[#E7E5E5] p-4 mt-4 md:mt-0 md:ml-2 overflow-y-auto"
-            style={{ maxHeight: "500px" }}
+            style={{ maxHeight: "400px" }}
           >
             <div className="mb-2">
               <h3 className="text-center font-medium text-gray-700">Exam Navigation</h3>
