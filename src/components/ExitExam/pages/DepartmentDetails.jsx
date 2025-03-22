@@ -243,7 +243,7 @@ const DepartmentDetails = () => {
                     </div>
                   </div>
 
-                  {exam.isSample ? (
+                  {!exam.isSample ? (
                     <Link
                       to={`/generate-exam/${exam._id}`}
                       className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-colors"

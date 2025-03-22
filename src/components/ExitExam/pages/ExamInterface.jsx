@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { Flag } from "lucide-react"
 import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
+import { Flag } from "lucide-react"
 
 export default function ExamInterface() {
   const { id } = useParams() // Get exam ID from URL params
@@ -330,7 +330,7 @@ export default function ExamInterface() {
             <p>Reviewing questions you missed. Learn from your mistakes!</p>
           </div>
 
-          <div className="flex flex-col md:flex-row mt-24 min-h-screen">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-4 mt-24">
             {/* Main Exam Area */}
             <div className="flex-grow">
               <div className="flex flex-col md:flex-row">
@@ -416,18 +416,18 @@ export default function ExamInterface() {
               </div>
             </div>
 
-            {/* Exam Navigation */}
-            <div className="w-full md:w-80 bg-gray-200 p-4 mt-4 md:mt-0 md:ml-2 overflow-y-auto max-h-[500px]">
+            {/* Exam Navigation - Fixed width and height */}
+            <div className="w-full md:w-[300px] h-[400px] bg-gray-200 p-4 mt-4 md:mt-0 self-start">
               <div className="mb-2">
                 <h3 className="text-center font-medium text-gray-700">Question Navigation</h3>
               </div>
 
-              <div className="grid grid-cols-5 gap-1">
+              <div className="grid grid-cols-10 gap-1">
                 {Array.from({ length: examQuestions.length }, (_, i) => (
                   <button
                     key={i}
                     onClick={() => goToQuestion(i)}
-                    className={`h-8 w-full flex items-center justify-center text-center border border-gray-300 ${
+                    className={`h-6 w-6 flex items-center justify-center text-center text-xs border border-gray-300 ${
                       currentQuestionIndex === i
                         ? "bg-gray-500 text-white"
                         : incorrectQuestions.includes(i)
@@ -451,17 +451,18 @@ export default function ExamInterface() {
       {showResultsPopup && <ResultsPopup />}
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row">
+        {/* Timer */}
+        <div className="flex justify-center py-2">
+          <div className="inline-flex items-center px-3 py-1 border border-red-500 rounded">
+            <span className="mr-2">⏱️</span>
+            <span>Time left {formatTime(timeRemaining)}</span>
+          </div>
+        </div>
+
+        {/* Main content using grid with fixed dimensions for navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-4">
           {/* Main Exam Area */}
           <div className="flex-grow">
-            {/* Timer */}
-            <div className="flex justify-center py-2">
-              <div className="inline-flex items-center px-3 py-1 border border-red-500 rounded">
-                <span className="mr-2">⏱️</span>
-                <span>Time left {formatTime(timeRemaining)}</span>
-              </div>
-            </div>
-
             <div className="flex flex-col md:flex-row">
               {/* Question Number */}
               <div className="w-full md:w-48 h-auto md:h-[120px] bg-gray-200 p-4 mb-4 md:mb-0 md:mr-2">
@@ -476,7 +477,7 @@ export default function ExamInterface() {
               </div>
 
               {/* Question Content */}
-              <div className="flex-grow w-64 p-6 bg-[#D9F1F1]">
+              <div className="flex-grow p-6 bg-[#D9F1F1]">
                 <p className="text-gray-800 mb-6 text-lg">
                   <span className="font-bold">{currentQuestionIndex + 1}. </span>
                   {currentQuestion.questionText}
@@ -536,21 +537,18 @@ export default function ExamInterface() {
             </div>
           </div>
 
-          {/* Exam Navigation */}
-          <div
-            className="w-full md:w-80 bg-[#E7E5E5] p-4 mt-4 md:mt-0 md:ml-2 overflow-y-auto"
-            style={{ maxHeight: "400px" }}
-          >
+          {/* Exam Navigation - Fixed width and height */}
+          <div className="w-full md:w-[300px] h-[400px] bg-[#E7E5E5] p-4 mt-4 md:mt-0 self-start">
             <div className="mb-2">
               <h3 className="text-center font-medium text-gray-700">Exam Navigation</h3>
             </div>
 
-            <div className="grid grid-cols-5 gap-1">
+            <div className="grid grid-cols-10 gap-2">
               {Array.from({ length: examQuestions.length }, (_, i) => (
                 <div key={i} className="relative">
                   <button
                     onClick={() => goToQuestion(i)}
-                    className={`h-12 w-full flex items-center justify-center text-center border border-gray-300 ${
+                    className={`h-6 w-6 flex items-center justify-center text-center text-xs border border-gray-300 ${
                       currentQuestionIndex === i
                         ? "bg-gray-500 text-white"
                         : answers[i] !== null
@@ -563,10 +561,10 @@ export default function ExamInterface() {
                     {i + 1}
                   </button>
 
-                  {/* Flag badge with timestamp */}
+                  {/* Flag badge - simplified */}
                   {flaggedQuestions[i] && (
-                    <div className="absolute top-0 right-0 flex items-center justify-center bg-red-600 text-white text-xs py-1">
-                      <Flag className="h-3 w-5 mr-1" />
+                    <div className="absolute -top-1 right-0 flex items-center justify-center text-white text-xs py-1">
+                      <Flag className="h-3 text-red-500 w-3 mr-1" />
                     </div>
                   )}
                 </div>
