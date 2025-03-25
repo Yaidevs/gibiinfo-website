@@ -1,1 +1,1 @@
-export const BASE_URL = 'http://51.21.9.171:5001/api/v1';
+export const BASE_URL = 'https://user.dawaafinder.com/gibi-info';
