@@ -1,18 +1,21 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
 import { Flag } from "lucide-react"
 
 export default function ExamInterface() {
   const { id } = useParams() // Get exam ID from URL params
   const navigate = useNavigate()
+  const location = useLocation()
   const [currentPage, setCurrentPage] = useState(1)
-  const [questionsPerPage, setQuestionsPerPage] = useState(100)
 
-  // Set time limit directly in the component (in hours)
-  const timeLimit = 1.5 // 1.5 hours for the exam
+  // Get values from location state or use defaults
+  const [questionsPerPage, setQuestionsPerPage] = useState(location.state?.numQuestions || 20)
+
+  // Set time limit from location state (in minutes) or use default
+  const timeLimit = location.state?.timeLimit || 90 // Default 90 minutes if not provided
 
   // Fetch questions from API
   const {
@@ -30,7 +33,7 @@ export default function ExamInterface() {
   const [answers, setAnswers] = useState([])
   const [flaggedQuestions, setFlaggedQuestions] = useState([])
   const [flaggedTimestamps, setFlaggedTimestamps] = useState([])
-  const [timeRemaining, setTimeRemaining] = useState(timeLimit * 3600) // Convert hours to seconds
+  const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60) // Convert minutes to seconds
   const [examSubmitted, setExamSubmitted] = useState(false)
   const [showResultsPopup, setShowResultsPopup] = useState(false)
   const [reviewMode, setReviewMode] = useState(false)

@@ -194,7 +194,7 @@ const DepartmentDetails = () => {
 
         {/* Exit Exams Section - FIRST */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Exit Exams</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Exams</h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allExams.map((exam) => (
@@ -336,7 +336,7 @@ const DepartmentDetails = () => {
                 ))}
               </div>
               
-              <div className="mt-8 bg-gray-50 p-6 rounded-lg">
+              {/* <div className="mt-8 bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">About the Department</h3>
                 <p className="text-gray-600 mb-4">
                   {departmentDetail?.data.description || 
@@ -345,7 +345,7 @@ const DepartmentDetails = () => {
                 <p className="text-gray-600">
                   Students will learn from experienced faculty members who are experts in their respective fields. The department offers state-of-the-art facilities and resources to support student learning and research.
                 </p>
-              </div>
+              </div> */}
             </div>
           )}
 

@@ -7,7 +7,7 @@ export default function ExitExamHome() {
       <div className="relative bg-[#008080] py-32 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="md:w-2/3">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="text-3xl font-bold text-white sm:text-4xl md:text-6xl">
               Prepare for your exit exams with confidence
             </h1>
             <p className="mt-6 text-xl max-w-3xl">

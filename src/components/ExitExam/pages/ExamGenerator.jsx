@@ -60,14 +60,17 @@ export default function ExamGenerator() {
           <h1 className="text-2xl text-gray-900 font-bold">
             Generate Exit Exam
           </h1>
-          {/* <p className="text-gray-600 text-sm mt-2">
-            Customize your exam settings below
-          </p> */}
+          <p className="text-gray-600 text-sm mt-2">
+            Enter the number of questios and time limit you want
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* <div className="mb-6">
-            <label htmlFor="numQuestions" className="text-gray-700 text-sm block font-medium mb-1">
+          <div className="mb-6">
+            <label
+              htmlFor="numQuestions"
+              className="text-gray-700 text-sm block font-medium mb-1"
+            >
               Number of Questions
             </label>
             <input
@@ -75,7 +78,7 @@ export default function ExamGenerator() {
               id="numQuestions"
               name="numQuestions"
               min="10"
-              max="50"
+              max="100"
               step="5"
               value={formData.numQuestions}
               onChange={handleChange}
@@ -84,12 +87,15 @@ export default function ExamGenerator() {
             <div className="flex justify-between text-gray-600 text-xs mt-1">
               <span>10</span>
               <span>{formData.numQuestions} questions</span>
-              <span>50</span>
+              <span>100</span>
             </div>
           </div>
 
           <div className="mb-8">
-            <label htmlFor="timeLimit" className="text-gray-700 text-sm block font-medium mb-1">
+            <label
+              htmlFor="timeLimit"
+              className="text-gray-700 text-sm block font-medium mb-1"
+            >
               Time Limit (minutes)
             </label>
             <input
@@ -108,7 +114,7 @@ export default function ExamGenerator() {
               <span>{formData.timeLimit} minutes</span>
               <span>120 min</span>
             </div>
-          </div> */}
+          </div>
 
           {/* <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <h3 className="text-blue-800 font-medium mb-2">Exam Summary</h3>
