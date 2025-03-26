@@ -271,7 +271,7 @@ const DepartmentDetails = () => {
                     ) : (
                       <div className="space-y-3">
                         <div className="text-center font-medium text-purple-800 mb-2">
-                          {exam.price || "$19.99"}
+                          {exam.price || "200 ETB"}
                         </div>
                         <button
                           onClick={() => alert("Buy It ...")}
