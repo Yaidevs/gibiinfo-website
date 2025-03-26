@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
 import { Flag } from "lucide-react"
+import "katex/dist/katex.min.css"
+import { InlineMath } from "react-katex"
 
 export default function ExamInterface() {
   const { id } = useParams() // Get exam ID from URL params
@@ -217,6 +219,36 @@ export default function ExamInterface() {
     return Number.parseInt(question.answer.replace("option", "")) - 1
   }
 
+  // Function to render text with math expressions
+  const renderWithMath = (text) => {
+    if (!text) return null
+
+    // Check if the text contains LaTeX-style math expressions
+    if (!text.includes("$")) return text
+
+    // Split the text by $ to separate math and non-math parts
+    const parts = text.split(/(\$.*?\$)/g)
+
+    return (
+      <>
+        {parts.map((part, index) => {
+          if (part.startsWith("$") && part.endsWith("$")) {
+            // Extract the math expression without the $ symbols
+            const mathExpression = part.slice(1, -1)
+            try {
+              return <InlineMath key={index} math={mathExpression} />
+            } catch (error) {
+              console.error("Error rendering math:", error)
+              return <span key={index}>{part}</span>
+            }
+          } else {
+            return <span key={index}>{part}</span>
+          }
+        })}
+      </>
+    )
+  }
+
   // Current question data
   const currentQuestion = examQuestions[currentQuestionIndex]
   const options = currentQuestion ? getOptionsFromQuestion(currentQuestion) : []
@@ -351,7 +383,7 @@ export default function ExamInterface() {
                 <div className="flex-grow p-6 bg-blue-50">
                   <p className="text-gray-800 mb-6 text-lg">
                     <span className="font-bold">{currentQuestionIndex + 1}. </span>
-                    {currentQuestion.questionText}
+                    {renderWithMath(currentQuestion.questionText)}
                   </p>
 
                   <div className="space-y-4">
@@ -375,7 +407,7 @@ export default function ExamInterface() {
                                 : "text-gray-700"
                           }`}
                         >
-                          {String.fromCharCode(65 + index)}. {option}
+                          {String.fromCharCode(65 + index)}. {renderWithMath(option)}
                           {index === correctAnswerIndex && " ✓ (Correct Answer)"}
                         </label>
                       </div>
@@ -384,12 +416,14 @@ export default function ExamInterface() {
 
                   <div className="mt-8 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                     <h3 className="font-medium text-yellow-800 mb-2">Explanation:</h3>
-                    <p className="text-yellow-800">
-                      {currentQuestion.explanation ||
-                        `The correct answer is ${String.fromCharCode(
-                          65 + correctAnswerIndex,
-                        )}. ${options[correctAnswerIndex]}`}
-                    </p>
+                    <div className="text-yellow-800">
+                      {renderWithMath(
+                        currentQuestion.explanation ||
+                          `The correct answer is ${String.fromCharCode(
+                            65 + correctAnswerIndex,
+                          )}. ${options[correctAnswerIndex]}`,
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -483,7 +517,7 @@ export default function ExamInterface() {
               <div className="flex-grow p-6 bg-[#D9F1F1]">
                 <p className="text-gray-800 mb-6 text-lg">
                   <span className="font-bold">{currentQuestionIndex + 1}. </span>
-                  {currentQuestion.questionText}
+                  {renderWithMath(currentQuestion.questionText)}
                 </p>
 
                 <div className="space-y-4 mt-8">
@@ -498,7 +532,7 @@ export default function ExamInterface() {
                         onChange={() => handleAnswerSelect(index)}
                       />
                       <label htmlFor={`option-${index}`} className="text-gray-700">
-                        {String.fromCharCode(65 + index)}. {option}
+                        {String.fromCharCode(65 + index)}. {renderWithMath(option)}
                       </label>
                     </div>
                   ))}

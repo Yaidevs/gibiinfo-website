@@ -252,15 +252,15 @@ const DepartmentDetails = () => {
                     <div className="flex flex-wrap gap-3 mb-6">
                       <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                         <FaRegClock className="mr-1 h-3 w-3" />
-                        {exam.timeLimit || 60} mins
+                        {exam.timeLimit || 120} mins
                       </div>
                       <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                         <FaBook className="mr-1 h-3 w-3" />
-                        {exam.questionCount || 50} questions
+                        {exam.questionCount || 100} questions
                       </div>
                     </div>
 
-                    {!exam.isSample ? (
+                    {exam.isSample ? (
                       <Link
                         to={`/generate-exam/${exam._id}`}
                         className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-colors"

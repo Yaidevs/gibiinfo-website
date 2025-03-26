@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import AboutSection from "./components/AboutSection";
@@ -62,17 +67,30 @@ function App() {
               </>
             }
           />
-          <Route path="/department/:id" element={<DepartmentDetails />} />
+          <Route
+            path="/department/:id"
+            element={
+              <>
+                <DepartmentDetails />
+              </>
+            }
+          />
           <Route
             path="/generate-exam/:id"
             element={
               <>
                 <ExamGenerator />
-                <Footer />
               </>
             }
           />
-          <Route path="/exam/:id" element={<ExamInterface />} />
+          <Route
+            path="/exam/:id"
+            element={
+              <>
+                <ExamInterface />
+              </>
+            }
+          />
         </Routes>
       </div>
     </Router>
