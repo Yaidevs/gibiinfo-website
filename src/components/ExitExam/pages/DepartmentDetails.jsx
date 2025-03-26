@@ -218,7 +218,7 @@ const DepartmentDetails = () => {
   // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      setIsProcessing(true);
+      // setIsProcessing(true);
       const user = await signInWithGoogle();
       console.log("USer", user.providerData);
 
