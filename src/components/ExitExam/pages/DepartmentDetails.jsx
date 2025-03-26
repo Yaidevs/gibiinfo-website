@@ -32,7 +32,6 @@ import {
 import { signInWithGoogle } from "../../../../firebase";
 import googleImg from "../../../assets/google.png";
 
-
 const DepartmentDetails = () => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("additional");
@@ -41,6 +40,7 @@ const DepartmentDetails = () => {
   const { data: departmentExams, isLoading: examsLoading } =
     useGetExitExamByDepartmentQuery(id);
   const [purchaseExam] = usePurchaseExamMutation();
+  const [createUser] = useCreateUserMutation();
 
   // Purchase modal states
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -223,27 +223,28 @@ const DepartmentDetails = () => {
       setIsProcessing(true);
       const user = await signInWithGoogle();
       console.log("USer", user.providerData);
-      const {  email} = user;
-      console.log('Email',email)
-      console.log('Phone number',phoneNumber)
+      const { email } = user;
+      console.log("Email", email);
+      console.log("Phone number", phoneNumber);
 
       // Simulate Google authentication popup
       // In a real implementation, you would use the Google OAuth API
-      const googleAuthPromise = new Promise((resolve) => {
-        // Simulate a delay for the Google auth process
-        setTimeout(() => {
-          resolve({
-            success: true,
-            user: {
-              email: "user@example.com",
-              name: "Example User",
-              googleId: "123456789",
-            },
-          });
-        }, 1500);
-      });
+      // const googleAuthPromise = new Promise((resolve) => {
+      //   // Simulate a delay for the Google auth process
+      //   setTimeout(() => {
+      //     resolve({
+      //       success: true,
+      //       user: {
+      //         email: "user@example.com",
+      //         name: "Example User",
+      //         googleId: "123456789",
+      //       },
+      //     });
+      //   }, 1500);
+      // });
 
-      const authResult = await googleAuthPromise;
+      // const authResult = await googleAuthPromise;
+      const register = await createUser({ email, phoneNumber }).unwrap();
 
       if (authResult.success) {
         // Process the purchase with the API
@@ -640,7 +641,7 @@ const DepartmentDetails = () => {
                             </div>
                           ) : (
                             <>
-                              <img src={googleImg} className="w-5 h-5 mr-2"/>
+                              <img src={googleImg} className="w-5 h-5 mr-2" />
                               Sign in with Google
                             </>
                           )}
