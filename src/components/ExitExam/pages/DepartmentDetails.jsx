@@ -24,12 +24,14 @@ import {
   FaPhone,
 } from "react-icons/fa";
 import {
+  useCreateUserMutation,
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
 } from "../data/api/dataApi";
 import { signInWithGoogle } from "../../../../firebase";
 import googleImg from "../../../assets/google.png";
+
 
 const DepartmentDetails = () => {
   const { id } = useParams();
@@ -218,9 +220,12 @@ const DepartmentDetails = () => {
   // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      // setIsProcessing(true);
+      setIsProcessing(true);
       const user = await signInWithGoogle();
       console.log("USer", user.providerData);
+      const {  email} = user;
+      console.log('Email',email)
+      console.log('Phone number',phoneNumber)
 
       // Simulate Google authentication popup
       // In a real implementation, you would use the Google OAuth API

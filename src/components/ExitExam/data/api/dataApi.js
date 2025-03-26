@@ -99,4 +99,5 @@ export const {
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
+  useCreateUserMutation,
 } = exitexamApi;
