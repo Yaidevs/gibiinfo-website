@@ -310,7 +310,7 @@ export default function ExamInterface() {
     return (
       <div className="bg-white min-h-screen pt-32 flex justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Loading Exam Questions...</h2>
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">Loading...</h2>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
         </div>
       </div>
@@ -365,7 +365,7 @@ export default function ExamInterface() {
             <p>Reviewing questions you missed. Learn from your mistakes!</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[1fr,300px] gap-4 mt-24">
+          <div className="grid min-h-screen grid-cols-1 md:grid-cols-[1fr,300px] gap-4 mt-24">
             {/* Main Exam Area */}
             <div className="flex-grow">
               <div className="flex flex-col md:flex-row">
