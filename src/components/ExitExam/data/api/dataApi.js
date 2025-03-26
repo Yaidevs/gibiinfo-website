@@ -70,6 +70,20 @@ export const exitexamApi = createApi({
     deleteExitExamQuestion: builder.mutation({
       query: (id) => ({ url: `/exit-question/${id}`, method: "DELETE" }),
     }),
+    purchaseExam: builder.mutation({
+      query: (data) => ({
+        url: `${apiBasePath}/purchase`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+    createUser: builder.mutation({
+      query: (data) => ({
+        url: `/user/get-or-create`,
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -84,4 +98,5 @@ export const {
   useGetDepartmentsQuery,
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
+  usePurchaseExamMutation,
 } = exitexamApi;
