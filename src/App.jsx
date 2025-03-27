@@ -17,6 +17,9 @@ import ExamGenerator from "./components/ExitExam/pages/ExamGenerator";
 import ExamInterface from "./components/ExitExam/pages/ExamInterface";
 import DepartmentDetails from "./components/ExitExam/pages/DepartmentDetails";
 import OldExamInterface from "./components/ExitExam/pages/OldExamInterface";
+import BankInformation from "./components/ExitExam/pages/BankInformation";
+import MyExams from "./components/ExitExam/pages/MyExams";
+import Profile from "./components/ExitExam/pages/Profile";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -88,6 +91,30 @@ function App() {
             element={
               <>
                 <ExamInterface />
+              </>
+            }
+          />
+          <Route
+            path="/bank-information"
+            element={
+              <>
+                <BankInformation />
+              </>
+            }
+          />
+          <Route
+            path="/my-exams"
+            element={
+              <>
+                <MyExams />
+              </>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <>
+                <Profile />
               </>
             }
           />

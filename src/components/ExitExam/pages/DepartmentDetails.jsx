@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import {
   FaGraduationCap,
   FaBook,
@@ -20,76 +20,82 @@ import {
   FaShieldAlt,
   FaCloudUploadAlt,
   FaTimes,
-  FaGoogle,
   FaPhone,
-} from "react-icons/fa";
+  FaUniversity,
+  FaCreditCard,
+  FaArrowRight,
+} from "react-icons/fa"
 import {
-  useCreateUserMutation,
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
-} from "../data/api/dataApi";
-import { signInWithGoogle } from "../../../../firebase";
-import googleImg from "../../../assets/google.png";
+  useGetOnlinePaymentUrlMutationMutation
+} from "../data/api/dataApi"
+import { signInWithGoogle } from "../../../../firebase"
+import googleImg from "../../../assets/google.png"
+import { useCreateUserMutation } from "../data/api/userApi"
+import { setToken } from "../data/slice/authSlice"
+import { useDispatch, useSelector } from "react-redux"
 
 const DepartmentDetails = () => {
-  const { id } = useParams();
-  const [activeTab, setActiveTab] = useState("additional");
-  const { data: departmentDetail, isLoading: deptLoading } =
-    useGetDepartmentByIdQuery(id);
-  const { data: departmentExams, isLoading: examsLoading } =
-    useGetExitExamByDepartmentQuery(id);
-  const [purchaseExam] = usePurchaseExamMutation();
-  const [createUser] = useCreateUserMutation();
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { id } = useParams()
+  const [activeTab, setActiveTab] = useState("additional")
+  const { data: departmentDetail, isLoading: deptLoading } = useGetDepartmentByIdQuery(id)
+  const { data: departmentExams, isLoading: examsLoading } = useGetExitExamByDepartmentQuery(id)
+  const [purchaseExam] = usePurchaseExamMutation()
+  const [createUser] = useCreateUserMutation()
+  const [getOnlinePaymentUrl] = useGetOnlinePaymentUrlMutationMutation()
+
+  // Get auth state from Redux
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
 
   // Purchase modal states
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
-  const [selectedExam, setSelectedExam] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-  const [purchaseStep, setPurchaseStep] = useState(1); // 1: Phone, 2: Google Auth
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [purchaseComplete, setPurchaseComplete] = useState(false);
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+  const [selectedExam, setSelectedExam] = useState(null)
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [phoneError, setPhoneError] = useState("")
+  const [purchaseStep, setPurchaseStep] = useState(1) // 1: Phone, 2: Google Auth, 3: Payment Method
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [purchaseComplete, setPurchaseComplete] = useState(false)
+  const [userRegistered, setUserRegistered] = useState(false)
+  const [userData, setUserData] = useState(null)
 
   // Static courses data
   const staticCourses = [
     {
       id: 1,
       title: "Introduction to Programming",
-      description:
-        "Learn the fundamentals of programming with Python and JavaScript",
+      description: "Learn the fundamentals of programming with Python and JavaScript",
       icon: <FaCode className="h-6 w-6 text-teal-500" />,
       level: "Beginner",
     },
     {
       id: 2,
       title: "Data Structures and Algorithms",
-      description:
-        "Master essential data structures and algorithm design techniques",
+      description: "Master essential data structures and algorithm design techniques",
       icon: <FaDatabase className="h-6 w-6 text-teal-500" />,
       level: "Intermediate",
     },
     {
       id: 3,
       title: "Web Development",
-      description:
-        "Build responsive websites using HTML, CSS, and modern JavaScript frameworks",
+      description: "Build responsive websites using HTML, CSS, and modern JavaScript frameworks",
       icon: <FaLaptopCode className="h-6 w-6 text-teal-500" />,
       level: "Intermediate",
     },
     {
       id: 4,
       title: "Database Systems",
-      description:
-        "Design and implement efficient database solutions with SQL and NoSQL",
+      description: "Design and implement efficient database solutions with SQL and NoSQL",
       icon: <FaDatabase className="h-6 w-6 text-teal-500" />,
       level: "Intermediate",
     },
     {
       id: 5,
       title: "Mobile App Development",
-      description:
-        "Create cross-platform mobile applications using React Native",
+      description: "Create cross-platform mobile applications using React Native",
       icon: <FaMobileAlt className="h-6 w-6 text-teal-500" />,
       level: "Advanced",
     },
@@ -103,16 +109,14 @@ const DepartmentDetails = () => {
     {
       id: 7,
       title: "Computer Networks",
-      description:
-        "Understand networking principles, protocols, and architecture",
+      description: "Understand networking principles, protocols, and architecture",
       icon: <FaNetworkWired className="h-6 w-6 text-teal-500" />,
       level: "Intermediate",
     },
     {
       id: 8,
       title: "Cybersecurity",
-      description:
-        "Learn to identify vulnerabilities and implement security measures",
+      description: "Learn to identify vulnerabilities and implement security measures",
       icon: <FaShieldAlt className="h-6 w-6 text-teal-500" />,
       level: "Advanced",
     },
@@ -123,15 +127,14 @@ const DepartmentDetails = () => {
       icon: <FaCloudUploadAlt className="h-6 w-6 text-teal-500" />,
       level: "Advanced",
     },
-  ];
+  ]
 
   // Sample exams if none are available from API
   const sampleExams = [
     {
       _id: "sample1",
       title: "Introduction to Programming",
-      description:
-        "Test your knowledge of programming fundamentals with this sample exam.",
+      description: "Test your knowledge of programming fundamentals with this sample exam.",
       isSample: true,
       questionCount: 25,
       timeLimit: 30,
@@ -139,8 +142,7 @@ const DepartmentDetails = () => {
     {
       _id: "sample2",
       title: "Data Structures Basics",
-      description:
-        "A sample assessment covering fundamental data structures concepts.",
+      description: "A sample assessment covering fundamental data structures concepts.",
       isSample: true,
       questionCount: 15,
       timeLimit: 20,
@@ -148,8 +150,7 @@ const DepartmentDetails = () => {
     {
       _id: "premium1",
       title: "Advanced Algorithms",
-      description:
-        "Comprehensive assessment of advanced algorithmic concepts and problem-solving.",
+      description: "Comprehensive assessment of advanced algorithmic concepts and problem-solving.",
       isSample: false,
       price: "$19.99",
       questionCount: 40,
@@ -158,111 +159,169 @@ const DepartmentDetails = () => {
     {
       _id: "premium2",
       title: "Full Stack Development",
-      description:
-        "Test your knowledge of both frontend and backend development technologies.",
+      description: "Test your knowledge of both frontend and backend development technologies.",
       isSample: false,
       price: "$24.99",
       questionCount: 50,
       timeLimit: 75,
     },
-  ];
+  ]
 
   // State for exams
-  const [allExams, setAllExams] = useState([]);
+  const [allExams, setAllExams] = useState([])
 
   useEffect(() => {
     if (departmentExams?.data && departmentExams.data.length > 0) {
       // Use real exam data from the API
-      setAllExams(departmentExams.data);
+      setAllExams(departmentExams.data)
     } else {
       // Use sample data if no API data is available
-      setAllExams(sampleExams);
+      setAllExams(sampleExams)
     }
-  }, [departmentExams]);
+  }, [departmentExams])
 
   // Handle purchase button click
   const handlePurchaseClick = (exam) => {
-    setSelectedExam(exam);
-    setIsPurchaseModalOpen(true);
-    setPurchaseStep(1);
-    setPhoneNumber("");
-    setPhoneError("");
-    setPurchaseComplete(false);
-  };
+    setSelectedExam(exam)
+
+    // If user is already authenticated, go directly to payment selection
+    if (isAuthenticated) {
+      setIsPurchaseModalOpen(true)
+      setPurchaseStep(3)
+
+      // Get email from localStorage
+      const email = localStorage.getItem("userEmail")
+
+      setUserData({
+        email,
+        phoneNumber: "",
+        userId: "user-id", // This will be replaced with actual user ID from API if needed
+      })
+    } else {
+      // Otherwise start from the beginning
+      setIsPurchaseModalOpen(true)
+      setPurchaseStep(1)
+      setPhoneNumber("")
+      setPhoneError("")
+    }
+
+    setPurchaseComplete(false)
+    setUserRegistered(false)
+  }
 
   // Close the purchase modal
   const handleCloseModal = () => {
-    setIsPurchaseModalOpen(false);
-    setSelectedExam(null);
-    setPurchaseStep(1);
-  };
+    setIsPurchaseModalOpen(false)
+    setSelectedExam(null)
+    setPurchaseStep(1)
+    setUserRegistered(false)
+  }
 
   // Validate phone number
   const validatePhoneNumber = (number) => {
     // Basic validation - adjust as needed for your requirements
-    const phoneRegex = /^\+?[0-9]{10,15}$/;
-    return phoneRegex.test(number);
-  };
+    const phoneRegex = /^\+?[0-9]{10,15}$/
+    return phoneRegex.test(number)
+  }
 
   // Handle phone number submission
   const handlePhoneSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setPhoneError("Please enter a valid phone number");
-      return;
+      setPhoneError("Please enter a valid phone number")
+      return
     }
 
-    setPhoneError("");
-    setPurchaseStep(2); // Move to Google auth step
-  };
+    setPhoneError("")
+    setPurchaseStep(2) // Move to Google auth step
+  }
 
   // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      setIsProcessing(true);
-      const user = await signInWithGoogle();
-      console.log("USer", user.providerData);
-      const { email } = user;
-      console.log("Email", email);
-      console.log("Phone number", phoneNumber);
+      setIsProcessing(true)
+      const user = await signInWithGoogle()
+      console.log("User", user.providerData)
+      const { email } = user
+      console.log("Email", email)
+      console.log("Phone number", phoneNumber)
 
-      // Simulate Google authentication popup
-      // In a real implementation, you would use the Google OAuth API
-      // const googleAuthPromise = new Promise((resolve) => {
-      //   // Simulate a delay for the Google auth process
-      //   setTimeout(() => {
-      //     resolve({
-      //       success: true,
-      //       user: {
-      //         email: "user@example.com",
-      //         name: "Example User",
-      //         googleId: "123456789",
-      //       },
-      //     });
-      //   }, 1500);
-      // });
+      // Store email in localStorage for profile display
+      localStorage.setItem("userEmail", email)
 
-      // const authResult = await googleAuthPromise;
-      const register = await createUser({ email, phoneNumber }).unwrap();
+      // Register user with API
+      const register = await createUser({ email, phoneNumber }).unwrap()
+      console.log("Registering ...", register)
 
-      if (authResult.success) {
-        // Process the purchase with the API
-        await purchaseExam({
-          examId: selectedExam._id,
-          phoneNumber: phoneNumber,
-          userId: authResult.user.googleId,
-        }).unwrap();
+      // Store token in Redux using the existing slice pattern
+      dispatch(setToken(register))
 
-        setPurchaseComplete(true);
+      // Store user data for later use
+      setUserData({
+        email,
+        phoneNumber,
+        userId: register.data?._id || register._id || register.userId || "user-id",
+      })
+
+      // Ensure we move to payment method selection
+      console.log("Moving to payment selection step")
+      setUserRegistered(true)
+
+      // Force a small delay to ensure state updates properly
+      setTimeout(() => {
+        setPurchaseStep(3)
+      }, 100)
+    } catch (error) {
+      console.error("Registration failed:", error)
+      alert("Failed to register. Please try again.")
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  // Handle bank transfer selection
+  const handleBankTransfer = () => {
+    // Navigate to bank information page with exam details
+    navigate("/bank-information", {
+      state: {
+        examId: selectedExam?._id,
+        examTitle: selectedExam?.title,
+        price: selectedExam?.price || "200 ETB",
+        userId: userData?.userId || user?._id || user?.userId,
+        departmentId: id,
+      },
+    })
+    setIsPurchaseModalOpen(false)
+  }
+
+  // Handle online payment selection
+  const handleOnlinePayment = async () => {
+    try {
+      setIsProcessing(true)
+
+      // Request online payment checkout URL from API
+      const response = await getOnlinePaymentUrl({
+        examId: selectedExam?._id,
+        userId: userData?.userId || user?._id || user?.userId,
+        amount: selectedExam?.price?.replace(/[^0-9.]/g, "") || "200",
+        currency: "ETB",
+        description: `Purchase of ${selectedExam?.title} exam`,
+      }).unwrap()
+
+      // Redirect to payment gateway
+      if (response.checkoutUrl) {
+        window.location.href = response.checkoutUrl
+      } else {
+        throw new Error("No checkout URL received")
       }
     } catch (error) {
-      console.error("Purchase failed:", error);
-      alert("Failed to complete purchase. Please try again.");
+      console.error("Failed to get payment URL:", error)
+      alert("Failed to initiate online payment. Please try again or use bank transfer.")
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   if (deptLoading) {
     return (
@@ -272,7 +331,7 @@ const DepartmentDetails = () => {
           {/* <p className="text-gray-600">Loading ...</p> */}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -282,9 +341,7 @@ const DepartmentDetails = () => {
         <div className="relative rounded-xl overflow-hidden mb-12">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-800 to-teal-600 opacity-90"></div>
           <div className="relative z-10 px-8 py-12 text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {departmentDetail?.data.name || "Department"}
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{departmentDetail?.data.name || "Department"}</h1>
             <p className="text-xl max-w-3xl opacity-90 mb-6">
               {departmentDetail?.data.description ||
                 "This department offers comprehensive education and training to prepare students for successful careers."}
@@ -321,14 +378,10 @@ const DepartmentDetails = () => {
                 >
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {exam.title}
-                      </h3>
+                      <h3 className="text-xl font-bold text-gray-900">{exam.title}</h3>
                       <div
                         className={`${
-                          exam.isSample
-                            ? "bg-teal-100 text-teal-800"
-                            : "bg-purple-100 text-purple-800"
+                          exam.isSample ? "bg-teal-100 text-teal-800" : "bg-purple-100 text-purple-800"
                         } text-xs font-semibold px-2.5 py-1 rounded-full flex items-center`}
                       >
                         {exam.isSample ? (
@@ -346,8 +399,7 @@ const DepartmentDetails = () => {
                     </div>
 
                     <p className="text-gray-600 mb-4">
-                      {exam.description ||
-                        "Comprehensive assessment of your knowledge and skills."}
+                      {exam.description || "Comprehensive assessment of your knowledge and skills."}
                     </p>
 
                     <div className="flex flex-wrap gap-3 mb-6">
@@ -371,9 +423,7 @@ const DepartmentDetails = () => {
                       </Link>
                     ) : (
                       <div className="space-y-3">
-                        <div className="text-center font-medium text-purple-800 mb-2">
-                          {exam.price || "200 ETB"}
-                        </div>
+                        <div className="text-center font-medium text-purple-800 mb-2">{exam.price || "200 ETB"}</div>
                         <button
                           onClick={() => handlePurchaseClick(exam)}
                           className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition-colors"
@@ -423,9 +473,7 @@ const DepartmentDetails = () => {
           {/* Additional Information Tab - with courses */}
           {activeTab === "additional" && (
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Department Courses
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Department Courses</h2>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <p>No course available for now . Coming Soon ...</p>
@@ -436,53 +484,34 @@ const DepartmentDetails = () => {
           {/* Curriculum Tab */}
           {activeTab === "curriculum" && (
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Curriculum
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Curriculum</h2>
               <div className="space-y-8">
                 {departmentDetail?.data?.yearlySubjects ? (
-                  departmentDetail.data.yearlySubjects.map(
-                    (yearData, index) => (
-                      <div
-                        key={index}
-                        className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
-                      >
-                        <h3 className="text-xl font-semibold text-teal-700 mb-4">
-                          {yearData.year}
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {yearData.subjects.map((subject, subIndex) => (
-                            <div
-                              key={subIndex}
-                              className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                              <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                                  <span className="text-teal-600 font-semibold">
-                                    {subIndex + 1}
-                                  </span>
-                                </div>
-                                <div className="ml-4">
-                                  <h4 className="text-lg font-medium text-gray-900">
-                                    {subject}
-                                  </h4>
-                                </div>
+                  departmentDetail.data.yearlySubjects.map((yearData, index) => (
+                    <div key={index} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
+                      <h3 className="text-xl font-semibold text-teal-700 mb-4">{yearData.year}</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {yearData.subjects.map((subject, subIndex) => (
+                          <div key={subIndex} className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
+                                <span className="text-teal-600 font-semibold">{subIndex + 1}</span>
+                              </div>
+                              <div className="ml-4">
+                                <h4 className="text-lg font-medium text-gray-900">{subject}</h4>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        ))}
                       </div>
-                    )
-                  )
+                    </div>
+                  ))
                 ) : (
                   <div className="text-center py-8">
                     <FaBook className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      No Curriculum Data Available
-                    </h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Curriculum Data Available</h3>
                     <p className="text-gray-600">
-                      The curriculum information for this department is
-                      currently being updated.
+                      The curriculum information for this department is currently being updated.
                     </p>
                   </div>
                 )}
@@ -498,13 +527,8 @@ const DepartmentDetails = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             {/* Modal Header */}
             <div className="bg-purple-600 text-white px-6 py-4 flex justify-between items-center">
-              <h3 className="text-xl font-semibold">
-                {purchaseComplete ? "Purchase Complete" : "Purchase Exam"}
-              </h3>
-              <button
-                onClick={handleCloseModal}
-                className="text-white hover:text-purple-100"
-              >
+              <h3 className="text-xl font-semibold">{purchaseComplete ? "Purchase Complete" : "Purchase Exam"}</h3>
+              <button onClick={handleCloseModal} className="text-white hover:text-purple-100">
                 <FaTimes />
               </button>
             </div>
@@ -521,20 +545,13 @@ const DepartmentDetails = () => {
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      ></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    Thank You for Your Purchase!
-                  </h4>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2">Thank You for Your Purchase!</h4>
                   <p className="text-gray-600 mb-6">
-                    You now have access to {selectedExam?.title}. You can start
-                    the exam immediately or access it later from your dashboard.
+                    You now have access to {selectedExam?.title}. You can start the exam immediately or access it later
+                    from your dashboard.
                   </p>
                   <div className="flex justify-center space-x-4">
                     <Link
@@ -557,23 +574,14 @@ const DepartmentDetails = () => {
                   {purchaseStep === 1 && (
                     <form onSubmit={handlePhoneSubmit}>
                       <div className="mb-6">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                          Enter Your Phone Number
-                        </h4>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Enter Your Phone Number</h4>
                         <p className="text-gray-600 mb-4">
-                          Please provide your phone number to continue with the
-                          purchase of{" "}
-                          <span className="font-medium">
-                            {selectedExam?.title}
-                          </span>
-                          .
+                          Please provide your phone number to continue with the purchase of{" "}
+                          <span className="font-medium">{selectedExam?.title}</span>.
                         </p>
 
                         <div className="mt-4">
-                          <label
-                            htmlFor="phoneNumber"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                          >
+                          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
                             Phone Number
                           </label>
                           <div className="relative">
@@ -591,11 +599,7 @@ const DepartmentDetails = () => {
                               required
                             />
                           </div>
-                          {phoneError && (
-                            <p className="mt-2 text-sm text-red-600">
-                              {phoneError}
-                            </p>
-                          )}
+                          {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
                         </div>
                       </div>
 
@@ -620,12 +624,9 @@ const DepartmentDetails = () => {
                   {/* Step 2: Google Authentication */}
                   {purchaseStep === 2 && (
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                        Sign in with Google
-                      </h4>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Sign in with Google</h4>
                       <p className="text-gray-600 mb-6">
-                        Please sign in with your Google account to complete your
-                        purchase.
+                        Please sign in with your Google account to continue your purchase.
                       </p>
 
                       <div className="flex justify-center mb-6">
@@ -641,7 +642,7 @@ const DepartmentDetails = () => {
                             </div>
                           ) : (
                             <>
-                              <img src={googleImg} className="w-5 h-5 mr-2" />
+                              <img src={googleImg || "/placeholder.svg"} className="w-5 h-5 mr-2" alt="Google logo" />
                               Sign in with Google
                             </>
                           )}
@@ -674,6 +675,86 @@ const DepartmentDetails = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Step 3: Payment Method Selection */}
+                  {purchaseStep === 3 && (
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Payment Method</h4>
+                      <p className="text-gray-600 mb-6">Choose how you would like to pay for {selectedExam?.title}.</p>
+
+                      <div className="space-y-4 mb-6">
+                        {/* Bank Transfer Option */}
+                        <div
+                          onClick={handleBankTransfer}
+                          className="border border-gray-300 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors flex items-center justify-between"
+                        >
+                          <div className="flex items-center">
+                            <div className="bg-blue-100 p-3 rounded-full">
+                              <FaUniversity className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <div className="ml-4">
+                              <h5 className="font-medium text-gray-900">Bank Transfer</h5>
+                              <p className="text-sm text-gray-500">Pay via bank deposit or transfer</p>
+                            </div>
+                          </div>
+                          <FaArrowRight className="h-4 w-4 text-gray-400" />
+                        </div>
+
+                        {/* Online Payment Option */}
+                        <div
+                          onClick={handleOnlinePayment}
+                          className="border border-gray-300 rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors flex items-center justify-between"
+                        >
+                          <div className="flex items-center">
+                            <div className="bg-green-100 p-3 rounded-full">
+                              <FaCreditCard className="h-6 w-6 text-green-600" />
+                            </div>
+                            <div className="ml-4">
+                              <h5 className="font-medium text-gray-900">Online Payment</h5>
+                              <p className="text-sm text-gray-500">Pay securely with credit/debit card</p>
+                            </div>
+                          </div>
+                          <FaArrowRight className="h-4 w-4 text-gray-400" />
+                        </div>
+                      </div>
+
+                      {/* <div className="bg-gray-100 p-4 rounded-lg mb-6">
+                        <div className="flex justify-between mb-2">
+                          <span className="text-gray-600">Exam:</span>
+                          <span className="font-medium">{selectedExam?.title}</span>
+                        </div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-gray-600">Price:</span>
+                          <span className="font-medium">{selectedExam?.price || "200 ETB"}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">User:</span>
+                          <span className="font-medium">{userData?.email || user?.email}</span>
+                        </div>
+                      </div> */}
+
+                      <div className="flex justify-end space-x-3">
+                        {!isAuthenticated && (
+                          <button
+                            type="button"
+                            onClick={() => setPurchaseStep(2)}
+                            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                            disabled={isProcessing}
+                          >
+                            Back
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleCloseModal}
+                          className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
+                          disabled={isProcessing}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -681,7 +762,8 @@ const DepartmentDetails = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default DepartmentDetails;
+export default DepartmentDetails
+

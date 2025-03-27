@@ -38,6 +38,9 @@ export const exitexamApi = createApi({
     getDepartmentById: builder.query({
       query: (id) => ({ url: `/department/${id}` }),
     }),
+    getExitExamInfo: builder.query({
+      query: (id) => ({ url: `/exit-exam/package/current-exam//${id}` }),
+    }),
     getDepartments: builder.query({
       query: () => ({ url: `/department/` }),
     }),
@@ -77,9 +80,18 @@ export const exitexamApi = createApi({
         body: data,
       }),
     }),
-    createUser: builder.mutation({
+
+    getOnlinePaymentUrlMutation: builder.mutation({
       query: (data) => ({
-        url: `/user/get-or-create`,
+        url: `${apiBasePath}/purchase`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+
+    useVerifyBankTransferMutation: builder.mutation({
+      query: (data) => ({
+        url: `${apiBasePath}/purchase`,
         method: "POST",
         body: data,
       }),
@@ -99,5 +111,6 @@ export const {
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
-  useCreateUserMutation,
+  useGetOnlinePaymentUrlMutationMutation,
+  useVerifyBankTransferMutation,
 } = exitexamApi;
