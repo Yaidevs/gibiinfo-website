@@ -264,7 +264,7 @@ const MyExams = () => {
                             <h3 className="text-xl font-bold text-gray-900">
                               {exam.title}
                             </h3>
-                            <div
+                            {/* <div
                               className={`text-xs font-semibold px-2.5 py-1 rounded-full flex items-center
                               ${
                                 exam.status === "completed"
@@ -279,7 +279,7 @@ const MyExams = () => {
                                 : exam.progress > 0
                                 ? "In Progress"
                                 : "Not Started"}
-                            </div>
+                            </div> */}
                           </div>
 
                           <p className="text-gray-600 mb-4 line-clamp-2">
