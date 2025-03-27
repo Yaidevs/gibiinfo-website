@@ -107,6 +107,7 @@ function App() {
             element={
               <>
                 <MyExams />
+                <Footer/>
               </>
             }
           />
@@ -115,6 +116,7 @@ function App() {
             element={
               <>
                 <Profile />
+                <Footer/>
               </>
             }
           />

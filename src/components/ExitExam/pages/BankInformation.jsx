@@ -2,37 +2,31 @@
 
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate, Link } from "react-router-dom"
-import { FaUniversity, FaCopy, FaCheck, FaUpload, FaFileImage } from "react-icons/fa"
-import { useVerifyBankTransferMutation } from "../data/api/dataApi"
+import { FaUniversity, FaCopy, FaCheck, FaUpload, FaFileImage, FaExclamationTriangle } from "react-icons/fa"
+import { useGetBankAccountsQuery, useSubscribeManualPaymentMutation } from "../data/api/dataApi"
 
 const BankInformation = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
   // Get exam details from location state
-  const { examId, examTitle, price, userId } = location.state || {}
+  const { examId, examTitle, price, userId, departmentId ,packageId} = location.state || {}
 
-  // State for receipt upload
+  // Fetch banks from API
+  const { data: banksData, isLoading: isBanksLoading, error: banksError } = useGetBankAccountsQuery()
+  const [subscribeManual] = useSubscribeManualPaymentMutation()
+
+  // State for receipt upload and form
   const [receiptFile, setReceiptFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState("")
   const [transactionId, setTransactionId] = useState("")
+  const [selectedBankId, setSelectedBankId] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [error, setError] = useState("")
 
-  // Bank account details (static for now)
-  const bankAccounts = [
-    {
-      bank: "Commercial Bank of Ethiopia",
-      accountName: "Barnabas T.",
-      accountNumber: "1000123456789",
-    },
-    {
-      bank: "Dashen Bank",
-      accountName: "Barnabas T.",
-      accountNumber: "0987654321",
-    },
-  ]
+  // Convert receipt to base64 for API
+  const [receiptBase64, setReceiptBase64] = useState("")
 
   // Copy to clipboard functionality
   const [copied, setCopied] = useState(null)
@@ -49,7 +43,22 @@ const BankInformation = () => {
     if (file) {
       setReceiptFile(file)
       setPreviewUrl(URL.createObjectURL(file))
+
+      // Convert to base64
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result
+        setReceiptBase64(base64String.split(",")[1]) // Remove data:image/jpeg;base64, part
+      }
+      reader.readAsDataURL(file)
     }
+  }
+
+  // Handle bank selection
+  const handleBankChange = (e) => {
+    const bankId = e.target.value
+    console.log("Selected bank ID:", bankId)
+    setSelectedBankId(bankId)
   }
 
   // Handle form submission
@@ -66,18 +75,33 @@ const BankInformation = () => {
       return
     }
 
+    // Log the selectedBankId to debug
+    console.log("Submitting with bank ID:", selectedBankId)
+
+    if (!selectedBankId || selectedBankId === "") {
+      setError("Please select a bank")
+      return
+    }
+
     try {
       setIsSubmitting(true)
       setError("")
 
-      // Create form data for file upload
-      const formData = new FormData()
-      formData.append("receipt", receiptFile)
-      formData.append("transactionId", transactionId)
-      formData.append("examId", examId)
-      formData.append("userId", userId)
+      // Prepare data according to API requirements
+      const paymentData = {
+        paymentType: "manual",
+        package: packageId, // Using examId as the package identifier
+        type: "Semister", // Default value as specified
+        profImage: receiptBase64, // Base64 encoded image
+        manualTransactionId: transactionId,
+        bankId: selectedBankId,
+      }
 
-      // Submit verification request
+      console.log("Submitting payment data:", paymentData)
+
+      // Submit payment verification request
+      const response = await subscribeManual(paymentData).unwrap()
+      console.log("Payment verification response:", response)
 
       setSubmitSuccess(true)
 
@@ -99,6 +123,14 @@ const BankInformation = () => {
       navigate("/departments")
     }
   }, [examId, examTitle, navigate])
+
+  // Set first bank as default when data loads
+  useEffect(() => {
+    if (banksData?.data?.length > 0 && !selectedBankId) {
+      console.log("Setting default bank ID:", banksData.data[0]._id)
+      setSelectedBankId(banksData.data[0]._id.toString())
+    }
+  }, [banksData, selectedBankId])
 
   return (
     <div className="bg-gray-50 min-h-screen pt-[120px] pb-16">
@@ -131,55 +163,97 @@ const BankInformation = () => {
                     <span className="text-gray-600">Exam:</span>
                     <span className="font-medium">{examTitle}</span>
                   </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-gray-600">package :</span>
+                    <span className="font-medium">{packageId}</span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Amount to Pay:</span>
-                    <span className="font-medium text-purple-700">{price || "200 ETB"}</span>
+                    <span className="font-medium text-purple-700">{price} ETB</span>
                   </div>
                 </div>
               </div>
 
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Bank Account Details</h2>
-                <div className="space-y-4">
-                  {bankAccounts.map((account, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-3">
-                        <FaUniversity className="h-5 w-5 text-purple-600 mr-2" />
-                        <h3 className="font-medium text-gray-900">{account.bank}</h3>
-                      </div>
 
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Account Name:</span>
-                          <span>{account.accountName}</span>
-                        </div>
+                {isBanksLoading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
+                    <p className="text-gray-600">Loading bank accounts...</p>
+                  </div>
+                ) : banksError ? (
+                  <div className="bg-red-50 p-4 rounded-lg text-red-700 flex items-center">
+                    <FaExclamationTriangle className="h-5 w-5 mr-2" />
+                    <p>Failed to load bank accounts. Please try again later.</p>
+                  </div>
+                ) : banksData?.data?.length === 0 ? (
+                  <div className="bg-yellow-50 p-4 rounded-lg text-yellow-700">
+                    <p>No bank accounts available. Please contact support.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {banksData?.data?.map((bank) => (
+                      <div
+                        key={bank._id}
+                        className={`border rounded-lg p-4 transition-colors ${
+                          selectedBankId === bank._id ? "border-purple-500 bg-purple-50" : "border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-start">
+                          <input
+                            type="radio"
+                            id={`bank-${bank._id}`}
+                            name="bank"
+                            value={bank._id.toString()}
+                            checked={selectedBankId === bank._id.toString()}
+                            onChange={handleBankChange}
+                            className="mt-1 mr-3"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center mb-3">
+                              <FaUniversity className="h-5 w-5 text-purple-600 mr-2" />
+                              <h3 className="font-medium text-gray-900">{bank.bankName}</h3>
+                            </div>
 
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-600">Account Number:</span>
-                          <div className="flex items-center">
-                            <span className="mr-2 font-mono">{account.accountNumber}</span>
-                            <button
-                              onClick={() => copyToClipboard(account.accountNumber, `account-${index}`)}
-                              className="text-purple-600 hover:text-purple-800"
-                              title="Copy to clipboard"
-                            >
-                              {copied === `account-${index}` ? (
-                                <FaCheck className="h-4 w-4" />
-                              ) : (
-                                <FaCopy className="h-4 w-4" />
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Account Name:</span>
+                                <span>{bank.accountHolderName}</span>
+                              </div>
+
+                              <div className="flex justify-between items-center">
+                                <span className="text-gray-600">Account Number:</span>
+                                <div className="flex items-center">
+                                  <span className="mr-2 font-mono">{bank.accountNumber}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => copyToClipboard(bank.accountNumber, `account-${bank._id}`)}
+                                    className="text-purple-600 hover:text-purple-800"
+                                    title="Copy to clipboard"
+                                  >
+                                    {copied === `account-${bank._id}` ? (
+                                      <FaCheck className="h-4 w-4" />
+                                    ) : (
+                                      <FaCopy className="h-4 w-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+
+                              {bank.branch && (
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Branch:</span>
+                                  <span>{bank.branch}</span>
+                                </div>
                               )}
-                            </button>
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Branch:</span>
-                          <span>{account.branch}</span>
-                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-200 pt-6 mb-6">
@@ -206,7 +280,7 @@ const BankInformation = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Screen Shoot</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Receipt Screenshot</label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       {previewUrl ? (
                         <div className="space-y-3">
@@ -220,6 +294,7 @@ const BankInformation = () => {
                             onClick={() => {
                               setReceiptFile(null)
                               setPreviewUrl("")
+                              setReceiptBase64("")
                             }}
                             className="text-sm text-red-600 hover:text-red-800"
                           >
@@ -256,15 +331,17 @@ const BankInformation = () => {
 
                   <div className="flex justify-between pt-4">
                     <Link
-                      to={`/departments/${location.state?.departmentId || ""}`}
+                      to={`/departments/${departmentId || ""}`}
                       className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
                     >
                       Cancel
                     </Link>
                     <button
                       type="submit"
-                      disabled={isSubmitting}
-                      className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center"
+                      disabled={isSubmitting || !selectedBankId}
+                      className={`px-6 py-2 ${
+                        isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+                      } text-white rounded-md transition-colors flex items-center`}
                     >
                       {isSubmitting ? (
                         <>
@@ -274,7 +351,7 @@ const BankInformation = () => {
                       ) : (
                         <>
                           <FaUpload className="mr-2 h-4 w-4" />
-                          Submit Verification
+                          Submit
                         </>
                       )}
                     </button>

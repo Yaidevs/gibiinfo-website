@@ -24,12 +24,15 @@ import {
   FaUniversity,
   FaCreditCard,
   FaArrowRight,
+  FaTag,
+  FaCheckCircle,
 } from "react-icons/fa"
 import {
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
-  useGetOnlinePaymentUrlMutationMutation
+  useGetOnlinePaymentUrlMutationMutation,
+  useGetExitExamInfoQuery,
 } from "../data/api/dataApi"
 import { signInWithGoogle } from "../../../../firebase"
 import googleImg from "../../../assets/google.png"
@@ -44,6 +47,18 @@ const DepartmentDetails = () => {
   const [activeTab, setActiveTab] = useState("additional")
   const { data: departmentDetail, isLoading: deptLoading } = useGetDepartmentByIdQuery(id)
   const { data: departmentExams, isLoading: examsLoading } = useGetExitExamByDepartmentQuery(id)
+
+  // State to store exam IDs and their corresponding info
+  const [selectedExamId, setSelectedExamId] = useState(null)
+  const { data: examInfo, isLoading: examInfoLoading } = useGetExitExamInfoQuery(selectedExamId, {
+    skip: !selectedExamId,
+  })
+
+  console.log('eXAM INFOOO',examInfo?.data)
+
+  // State to store all exam info
+  const [examsWithInfo, setExamsWithInfo] = useState([])
+
   const [purchaseExam] = usePurchaseExamMutation()
   const [createUser] = useCreateUserMutation()
   const [getOnlinePaymentUrl] = useGetOnlinePaymentUrlMutationMutation()
@@ -170,15 +185,47 @@ const DepartmentDetails = () => {
   // State for exams
   const [allExams, setAllExams] = useState([])
 
+  // Fetch exam info for each exam when departmentExams changes
   useEffect(() => {
     if (departmentExams?.data && departmentExams.data.length > 0) {
       // Use real exam data from the API
       setAllExams(departmentExams.data)
+
+      // Create an array to store exams with their info
+      const fetchExamInfo = async () => {
+        const examsWithInfoData = await Promise.all(
+          departmentExams.data.map(async (exam) => {
+            try {
+              // Fetch exam info for each exam
+              setSelectedExamId(exam._id)
+              // We'll update the exams with info when examInfo changes
+              return exam
+            } catch (error) {
+              console.error(`Error fetching info for exam ${exam._id}:`, error)
+              return exam
+            }
+          }),
+        )
+
+        setExamsWithInfo(examsWithInfoData)
+      }
+
+      fetchExamInfo()
     } else {
       // Use sample data if no API data is available
       setAllExams(sampleExams)
+      setExamsWithInfo(sampleExams)
     }
   }, [departmentExams])
+
+  // Update exams with info when examInfo changes
+  useEffect(() => {
+    if (examInfo && selectedExamId) {
+      setExamsWithInfo((prevExams) =>
+        prevExams.map((exam) => (exam._id === selectedExamId ? { ...exam, info: examInfo.data } : exam)),
+      )
+    }
+  }, [examInfo, selectedExamId])
 
   // Handle purchase button click
   const handlePurchaseClick = (exam) => {
@@ -285,9 +332,10 @@ const DepartmentDetails = () => {
     // Navigate to bank information page with exam details
     navigate("/bank-information", {
       state: {
+        packageId:examInfo?.data._id,
         examId: selectedExam?._id,
         examTitle: selectedExam?.title,
-        price: selectedExam?.price || "200 ETB",
+        price: examInfo?.data.price,
         userId: userData?.userId || user?._id || user?.userId,
         departmentId: id,
       },
@@ -323,12 +371,40 @@ const DepartmentDetails = () => {
     }
   }
 
+  // Helper function to get difficulty badge
+  const getDifficultyBadge = (exam) => {
+    const difficulty = exam.info?.difficulty || "medium"
+
+    switch (difficulty.toLowerCase()) {
+      case "easy":
+        return (
+          <div className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center">
+            <FaTag className="mr-1 h-3 w-3" />
+            <span>Easy</span>
+          </div>
+        )
+      case "hard":
+        return (
+          <div className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center">
+            <FaTag className="mr-1 h-3 w-3" />
+            <span>Hard</span>
+          </div>
+        )
+      default:
+        return (
+          <div className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center">
+            <FaTag className="mr-1 h-3 w-3" />
+            <span>Medium</span>
+          </div>
+        )
+    }
+  }
+
   if (deptLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center pt-[100px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
-          {/* <p className="text-gray-600">Loading ...</p> */}
         </div>
       </div>
     )
@@ -367,9 +443,9 @@ const DepartmentDetails = () => {
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Exams</h2>
 
-          {departmentExams?.data.length > 0 ? (
+          {examsWithInfo.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {departmentExams?.data.map((exam) => (
+              {examsWithInfo.map((exam) => (
                 <div
                   key={exam._id}
                   className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl border-t-4 ${
@@ -399,21 +475,23 @@ const DepartmentDetails = () => {
                     </div>
 
                     <p className="text-gray-600 mb-4">
-                      {exam.description || "Comprehensive assessment of your knowledge and skills."}
+                      {examInfo?.data.description || "Comprehensive assessment of your knowledge and skills."}
                     </p>
+
+           
 
                     <div className="flex flex-wrap gap-3 mb-6">
                       <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                         <FaRegClock className="mr-1 h-3 w-3" />
-                        {exam.timeLimit || 120} mins
+                        {exam.timeLimit || exam.info?.timeLimit || 120} mins
                       </div>
                       <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                         <FaBook className="mr-1 h-3 w-3" />
-                        {exam.questionCount || 100} questions
+                        {exam.questionCount || exam.info?.questionCount || 100} questions
                       </div>
                     </div>
 
-                    {exam.isSample ? (
+                    {!exam.isSample ? (
                       <Link
                         to={`/generate-exam/${exam._id}`}
                         className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-colors"
@@ -423,7 +501,9 @@ const DepartmentDetails = () => {
                       </Link>
                     ) : (
                       <div className="space-y-3">
-                        <div className="text-center font-medium text-purple-800 mb-2">{exam.price || "200 ETB"}</div>
+                        <div className="text-center font-medium text-purple-800 mb-2">
+                          {`${examInfo?.data.price} ETB`  || `${examInfo?.data.price} ETB`  || "200 ETB"}
+                        </div>
                         <button
                           onClick={() => handlePurchaseClick(exam)}
                           className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition-colors"
@@ -711,27 +791,12 @@ const DepartmentDetails = () => {
                             </div>
                             <div className="ml-4">
                               <h5 className="font-medium text-gray-900">Online Payment</h5>
-                              <p className="text-sm text-gray-500">Pay securely with credit/debit card</p>
+                              <p className="text-sm text-gray-500">Pay securely Online</p>
                             </div>
                           </div>
                           <FaArrowRight className="h-4 w-4 text-gray-400" />
                         </div>
                       </div>
-
-                      {/* <div className="bg-gray-100 p-4 rounded-lg mb-6">
-                        <div className="flex justify-between mb-2">
-                          <span className="text-gray-600">Exam:</span>
-                          <span className="font-medium">{selectedExam?.title}</span>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-gray-600">Price:</span>
-                          <span className="font-medium">{selectedExam?.price || "200 ETB"}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">User:</span>
-                          <span className="font-medium">{userData?.email || user?.email}</span>
-                        </div>
-                      </div> */}
 
                       <div className="flex justify-end space-x-3">
                         {!isAuthenticated && (
