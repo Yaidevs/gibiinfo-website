@@ -92,9 +92,9 @@ export const exitexamApi = createApi({
       invalidatesTags: ["PurchasedExams"],
     }),
 
-    getOnlinePaymentUrlMutation: builder.mutation({
+    getOnlinePaymentUrl: builder.mutation({
       query: (data) => ({
-        url: `${apiBasePath}/purchase`,
+        url: `subscription/`,
         method: "POST",
         body: data,
       }),
@@ -122,7 +122,7 @@ export const {
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
-  useGetOnlinePaymentUrlMutationMutation,
+  useGetOnlinePaymentUrlMutation,
   useVerifyBankTransferMutation,
   useGetBankAccountsQuery,
   useSubscribeManualPaymentMutation,
