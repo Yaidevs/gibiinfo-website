@@ -362,6 +362,7 @@ const DepartmentDetails = () => {
 
   // Handle online payment selection
   const handleOnlinePayment = async () => {
+    console.log('Hello')
     try {
       setIsProcessing(true);
 
@@ -371,13 +372,13 @@ const DepartmentDetails = () => {
         package: examInfo?.data._id,
         type: "Semister",
       }).unwrap();
-
+      console.log("RRRRRRRR", response);
       // Redirect to payment gateway
-      if (response.checkoutUrl) {
-        window.location.href = response.checkoutUrl;
-      } else {
-        throw new Error("No checkout URL received");
-      }
+      // if (response.checkoutUrl) {
+      //   window.location.href = response.checkoutUrl;
+      // } else {
+      //   throw new Error("No checkout URL received");
+      // }
     } catch (error) {
       console.error("Failed to get payment URL:", error);
       alert(
@@ -516,7 +517,7 @@ const DepartmentDetails = () => {
                       </div>
                     </div>
 
-                    {!exam.isSample ? (
+                    {exam.isSample ? (
                       <Link
                         to={`/generate-exam/${exam._id}`}
                         className="w-full inline-flex justify-center items-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-colors"
