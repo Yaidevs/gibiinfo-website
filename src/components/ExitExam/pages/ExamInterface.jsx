@@ -761,7 +761,7 @@ export default function ExamInterface() {
                       currentQuestionIndex === i
                         ? "bg-gray-500 text-white"
                         : answers[i] !== null
-                        ? "bg-green-100 text-green-800"
+                        ? "bg-green-100 border-4 border-green-400 text-green-800"
                         : flaggedQuestions[i]
                         ? "bg-red-100 text-red-800"
                         : "bg-gray-100 text-gray-800"
