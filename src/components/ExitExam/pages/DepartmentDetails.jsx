@@ -227,8 +227,8 @@ const DepartmentDetails = () => {
       fetchExamInfo();
     } else {
       // Use sample data if no API data is available
-      setAllExams(sampleExams);
-      setExamsWithInfo(sampleExams);
+      // setAllExams(sampleExams);
+      // setExamsWithInfo(sampleExams);
     }
   }, [departmentExams]);
 
