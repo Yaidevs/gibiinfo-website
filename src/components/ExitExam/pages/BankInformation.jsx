@@ -11,6 +11,7 @@ const BankInformation = () => {
 
   // Get exam details from location state
   const { examId, examTitle, price, userId, departmentId ,packageId} = location.state || {}
+  console.log('EEEEEEEEEEE',examId ,examTitle,price,userId,departmentId,packageId)
 
   // Fetch banks from API
   const { data: banksData, isLoading: isBanksLoading, error: banksError } = useGetBankAccountsQuery()
@@ -95,6 +96,7 @@ const BankInformation = () => {
         profImage: receiptBase64, // Base64 encoded image
         manualTransactionId: transactionId,
         bankId: selectedBankId,
+        user:userId
       }
 
       console.log("Submitting payment data:", paymentData)

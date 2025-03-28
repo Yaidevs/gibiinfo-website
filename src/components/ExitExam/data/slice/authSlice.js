@@ -24,10 +24,12 @@ const authSlice = createSlice({
     setToken: (state, action) => {
       console.log("payloaddd", action.payload)
       state.token = action.payload.data.token
-      state.isAuthenticated = true
+      state.isAuthenticated = true,
 
       // Store authentication state in localStorage
-      localStorage.setItem("isAuthenticated", "true")
+      localStorage.setItem("isAuthenticated", "true"),
+      
+
 
       // Store token in cookies
       Cookies.set("token", state.token)
@@ -35,8 +37,12 @@ const authSlice = createSlice({
       // Store user email in localStorage if available
       if (action.payload.data.user && action.payload.data.user.email) {
         localStorage.setItem("userEmail", action.payload.data.user.email)
+        localStorage.setItem("userId", action.payload.data.user._id)
+
       } else if (action.payload.email) {
         localStorage.setItem("userEmail", action.payload.email)
+        localStorage.setItem("userId", action.payload._id)
+
       }
     },
 

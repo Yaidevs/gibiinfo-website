@@ -50,6 +50,19 @@ const DepartmentDetails = () => {
   const { data: departmentExams, isLoading: examsLoading } =
     useGetExitExamByDepartmentQuery(id);
 
+  // Get user Id from localStorage if available
+  const getUserId = () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      return userId || null;
+    } catch (error) {
+      console.error("Error getting user Id:", error);
+      return null;
+    }
+  };
+  const userId = getUserId();
+  console.log("User IDDDDDDDDD", userId);
+
   // State to store exam IDs and their corresponding info
   const [selectedExamId, setSelectedExamId] = useState(null);
   const { data: examInfo, isLoading: examInfoLoading } =
@@ -258,7 +271,7 @@ const DepartmentDetails = () => {
       setUserData({
         email,
         phoneNumber: "",
-        userId: "user-id", // This will be replaced with actual user ID from API if needed
+        user: user, // This will be replaced with actual user ID from API if needed
       });
     } else {
       // Otherwise start from the beginning
@@ -306,6 +319,7 @@ const DepartmentDetails = () => {
       setIsProcessing(true);
       const user = await signInWithGoogle();
       console.log("User", user.providerData);
+      console.log("USERRRRRRRRR", user);
       const { email } = user;
       console.log("Email", email);
       console.log("Phone number", phoneNumber);
@@ -324,8 +338,7 @@ const DepartmentDetails = () => {
       setUserData({
         email,
         phoneNumber,
-        userId:
-          register.data?._id || register._id || register.userId || "user-id",
+        userId: userId,
       });
 
       // Ensure we move to payment method selection
@@ -353,7 +366,7 @@ const DepartmentDetails = () => {
         examId: selectedExam?._id,
         examTitle: selectedExam?.title,
         price: examInfo?.data.price,
-        userId: userData?.userId || user?._id || user?.userId,
+        user: userId,
         departmentId: id,
       },
     });
@@ -362,7 +375,7 @@ const DepartmentDetails = () => {
 
   // Handle online payment selection
   const handleOnlinePayment = async () => {
-    console.log('Hello')
+    console.log("Hello");
     try {
       setIsProcessing(true);
 
@@ -371,6 +384,7 @@ const DepartmentDetails = () => {
         paymentType: "online",
         package: examInfo?.data._id,
         type: "Semister",
+        user: userId,
       }).unwrap();
       console.log("RRRRRRRR", response);
       // Redirect to payment gateway

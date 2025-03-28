@@ -10,6 +10,7 @@ export const exitexamApi = createApi({
     baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies();
+      console.log('TOKENNNNN',token)
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
