@@ -27,6 +27,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Get first letter of email for profile circle
   const getProfileInitial = () => {
     const email = getUserEmail()
+    
     if (email) {
       return email.charAt(0).toUpperCase()
     }

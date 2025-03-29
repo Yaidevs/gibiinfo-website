@@ -381,10 +381,9 @@ const DepartmentDetails = () => {
 
       // Request online payment checkout URL from API
       const response = await getOnlinePaymentUrl({
-        paymentType: "online",
+        paymentType: "Online",
         package: examInfo?.data._id,
         type: "Semister",
-        user: userId,
       }).unwrap();
       console.log("RRRRRRRR", response);
       // Redirect to payment gateway

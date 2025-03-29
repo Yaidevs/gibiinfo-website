@@ -4,14 +4,18 @@ import { useState, useEffect } from "react"
 import { useLocation, useNavigate, Link } from "react-router-dom"
 import { FaUniversity, FaCopy, FaCheck, FaUpload, FaFileImage, FaExclamationTriangle } from "react-icons/fa"
 import { useGetBankAccountsQuery, useSubscribeManualPaymentMutation } from "../data/api/dataApi"
+import { storage } from "../../../../firebase"
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
+import { v4 } from "uuid"
+
 
 const BankInformation = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
   // Get exam details from location state
-  const { examId, examTitle, price, userId, departmentId ,packageId} = location.state || {}
-  console.log('EEEEEEEEEEE',examId ,examTitle,price,userId,departmentId,packageId)
+  const { examId, examTitle, price, userId, departmentId, packageId } = location.state || {}
+  console.log("EEEEEEEEEEE", examId, examTitle, price, userId, departmentId, packageId)
 
   // Fetch banks from API
   const { data: banksData, isLoading: isBanksLoading, error: banksError } = useGetBankAccountsQuery()
@@ -25,9 +29,6 @@ const BankInformation = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
   const [error, setError] = useState("")
-
-  // Convert receipt to base64 for API
-  const [receiptBase64, setReceiptBase64] = useState("")
 
   // Copy to clipboard functionality
   const [copied, setCopied] = useState(null)
@@ -43,15 +44,12 @@ const BankInformation = () => {
     const file = e.target.files[0]
     if (file) {
       setReceiptFile(file)
-      setPreviewUrl(URL.createObjectURL(file))
+      // Create a preview URL for the selected image
+      const objectUrl = URL.createObjectURL(file)
+      setPreviewUrl(objectUrl)
 
-      // Convert to base64
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        const base64String = reader.result
-        setReceiptBase64(base64String.split(",")[1]) // Remove data:image/jpeg;base64, part
-      }
-      reader.readAsDataURL(file)
+      // Clean up the object URL when component unmounts or when the file changes
+      return () => URL.revokeObjectURL(objectUrl)
     }
   }
 
@@ -88,15 +86,19 @@ const BankInformation = () => {
       setIsSubmitting(true)
       setError("")
 
+      // Upload image to Firebase Storage
+      const imageRef = ref(storage, `Receipt-images/${receiptFile.name + v4()}`)
+      await uploadBytes(imageRef, receiptFile)
+      const imageUrl = await getDownloadURL(imageRef)
+
       // Prepare data according to API requirements
       const paymentData = {
-        paymentType: "manual",
-        package: packageId, // Using examId as the package identifier
+        paymentType: "Manual",
+        package: packageId, // Using packageId as the package identifier
         type: "Semister", // Default value as specified
-        profImage: receiptBase64, // Base64 encoded image
+        profImage: imageUrl, // Firebase image URL instead of base64
         manualTransactionId: transactionId,
-        bankId: selectedBankId,
-        user:userId
+        bankId: selectedBankId
       }
 
       console.log("Submitting payment data:", paymentData)
@@ -166,7 +168,7 @@ const BankInformation = () => {
                     <span className="font-medium">{examTitle}</span>
                   </div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">package :</span>
+                    <span className="text-gray-600">Package:</span>
                     <span className="font-medium">{packageId}</span>
                   </div>
                   <div className="flex justify-between">
@@ -296,7 +298,6 @@ const BankInformation = () => {
                             onClick={() => {
                               setReceiptFile(null)
                               setPreviewUrl("")
-                              setReceiptBase64("")
                             }}
                             className="text-sm text-red-600 hover:text-red-800"
                           >
@@ -324,6 +325,7 @@ const BankInformation = () => {
                             </label>
                             <p>or drag and drop</p>
                           </div>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
                         </div>
                       )}
                     </div>
