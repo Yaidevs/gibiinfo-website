@@ -8,7 +8,7 @@ const apiBasePath = "/exit-exam";
 export const exitexamApi = createApi({
   reducerPath: "exitexamApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: USER_URL,
+    baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies();
       console.log("TOKENNNNN", token);
