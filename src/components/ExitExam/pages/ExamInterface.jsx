@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useGetExitExamQuestionsQuery } from "../data/api/dataApi";
-import { Flag } from "lucide-react";
+import {
+  useAskAIMutation,
+  useGetExitExamQuestionsQuery,
+} from "../data/api/dataApi";
+import { Flag, Brain, Loader2, X, PlayCircle } from "lucide-react";
 import "katex/dist/katex.min.css";
 import { InlineMath } from "react-katex";
 
@@ -31,6 +34,11 @@ export default function ExamInterface() {
     page: currentPage,
     limit: questionsPerPage,
   });
+
+  // AI explanation mutation
+  const [askAI, { isLoading: isLoadingAI }] = useAskAIMutation();
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [showAiExplanation, setShowAiExplanation] = useState(false);
 
   const [examQuestions, setExamQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -90,6 +98,12 @@ export default function ExamInterface() {
 
     return () => clearInterval(timer);
   }, [timeRemaining]);
+
+  // Reset AI explanation when changing questions
+  useEffect(() => {
+    setAiExplanation(null);
+    setShowAiExplanation(false);
+  }, [currentQuestionIndex]);
 
   // Function to format time as HH:MM:SS
   const formatTime = (seconds) => {
@@ -302,8 +316,54 @@ export default function ExamInterface() {
     return { course, thematicArea, cleanExplanation };
   };
 
-  // Function to format explanation text by splitting on periods
-  // Remove the formatExplanation function entirely
+  // Function to get AI explanation
+  const getAIExplanation = async () => {
+    if (!currentQuestion || !currentQuestion._id) return;
+
+    try {
+      // Create the proper request body with questionId
+      const requestBody = { questionId: currentQuestion._id };
+
+      const response = await askAI(requestBody).unwrap();
+      if (response.success && response.data) {
+        setAiExplanation(response.data);
+        setShowAiExplanation(true);
+      }
+    } catch (error) {
+      console.error("Error fetching AI explanation:", error);
+    }
+  };
+
+  // Function to format AI explanation text with markdown-like formatting
+  const formatAIExplanation = (text) => {
+    if (!text) return null;
+
+    // First, replace markdown-style bold with HTML
+    const formattedText = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Split by double newlines to create paragraphs
+    const paragraphs = formattedText.split(/\n\n+/);
+
+    return (
+      <>
+        {paragraphs.map((paragraph, idx) => {
+          // Handle single newlines within paragraphs (convert to <br>)
+          const lines = paragraph.split(/\n/).map((line, lineIdx) => (
+            <React.Fragment key={lineIdx}>
+              {lineIdx > 0 && <br />}
+              <span dangerouslySetInnerHTML={{ __html: line }} />
+            </React.Fragment>
+          ));
+
+          return (
+            <p key={idx} className="mb-4 leading-relaxed">
+              {lines}
+            </p>
+          );
+        })}
+      </>
+    );
+  };
 
   // Current question data
   const currentQuestion = examQuestions[currentQuestionIndex];
@@ -448,12 +508,6 @@ export default function ExamInterface() {
     const { course, thematicArea, cleanExplanation } =
       extractCourseAndThematicArea(explanationText);
 
-    // Format explanation into sentences
-    // Replace this:
-    // const explanationSentences = formatExplanation(cleanExplanation)
-
-    // With nothing (remove it completely)
-
     return (
       <div className="bg-white min-h-screen pt-32">
         <div className="max-w-7xl mx-auto">
@@ -523,67 +577,176 @@ export default function ExamInterface() {
                   </div>
 
                   {/* Enhanced Explanation Section */}
-                  <div className="mt-8 p-6  rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200 shadow-md">
-                    {/* Course and Thematic Area at the top with emphasized styling */}
-                    {(course || thematicArea) && (
-                      <div className="mb-6 pb-3 border-b border-amber-200">
-                        {course && (
-                          <p className="text-indigo-700 font-bold text-lg mb-1">
-                            Course:{" "}
-                            <span className="font-semibold text-indigo-600">
-                              {course}
-                            </span>
-                          </p>
-                        )}
-                        {thematicArea && (
-                          <p className="text-indigo-700 font-bold text-lg">
-                            Thematic Area:{" "}
-                            <span className="font-semibold text-indigo-600">
-                              {thematicArea}
-                            </span>
-                          </p>
-                        )}
+                  {showAiExplanation && aiExplanation ? (
+                    <div className="mt-8 p-6 rounded-lg bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 shadow-md">
+                      {/* AI Explanation Header */}
+                      <div className="flex justify-between items-center mb-6 pb-3 border-b border-indigo-200">
+                        <div className="flex items-center">
+                          <Brain className="h-6 w-6 text-indigo-600 mr-2" />
+                          <h3 className="font-bold text-indigo-800 text-lg">
+                            GibiInfo AI Explanation
+                          </h3>
+                        </div>
+                        <button
+                          onClick={() => setShowAiExplanation(false)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <X size={20} />
+                        </button>
                       </div>
-                    )}
 
-                    <h3 className="font-bold text-amber-800 text-lg mb-4 border-b border-amber-200 pb-2">
-                      Explanation
-                    </h3>
+                      {/* Course and Thematic Area if available */}
+                      {(course || thematicArea) && (
+                        <div className="mb-6 pb-3 border-b border-indigo-200">
+                          {course && (
+                            <p className="text-indigo-700 font-bold text-lg mb-1">
+                              Course:{" "}
+                              <span className="font-semibold text-indigo-600">
+                                {course}
+                              </span>
+                            </p>
+                          )}
+                          {thematicArea && (
+                            <p className="text-indigo-700 font-bold text-lg">
+                              Thematic Area:{" "}
+                              <span className="font-semibold text-indigo-600">
+                                {thematicArea}
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      )}
 
-                    {/* Replace this:
-                    <div className="text-gray-800 space-y-3">
-                      {explanationSentences.length > 0 ? (
-                        explanationSentences.map((sentence, idx) => (
-                          <p key={idx} className="leading-relaxed">
-                            {renderWithMath(sentence.trim() + '.')}
-                          </p>
-                        ))
-                      ) : (
+                      {/* AI Explanation Content */}
+                      <div className="text-gray-800">
+                        {formatAIExplanation(aiExplanation.explanationText)}
+                      </div>
+
+                      {/* Videos Section */}
+                      {aiExplanation.video &&
+                        aiExplanation.video.length > 0 && (
+                          <div className="mt-6 pt-4 border-t border-indigo-200">
+                            <h4 className="font-semibold text-indigo-800 mb-3">
+                              Related Videos:
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {aiExplanation.video.map((video, index) => (
+                                <div
+                                  key={index}
+                                  className="bg-white rounded-lg overflow-hidden shadow-sm border border-indigo-100 hover:shadow-md transition-shadow"
+                                >
+                                  <div className="p-2 bg-indigo-50 border-b border-indigo-100">
+                                    <p
+                                      className="font-medium text-indigo-800 text-sm truncate"
+                                      title={
+                                        video.title || `Video ${index + 1}`
+                                      }
+                                    >
+                                      {video.title || `Video ${index + 1}`}
+                                    </p>
+                                  </div>
+                                  <a
+                                    href={video.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block relative"
+                                  >
+                                    <div className="aspect-video w-full bg-gray-100 relative">
+                                      {video.cover ? (
+                                        <img
+                                          src={
+                                            video.cover || "/placeholder.svg"
+                                          }
+                                          alt={video.title || "Video thumbnail"}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <PlayCircle className="h-12 w-12 text-indigo-300" />
+                                        </div>
+                                      )}
+                                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                        <PlayCircle className="h-12 w-12 text-white" />
+                                      </div>
+                                    </div>
+                                    <div className="p-2 text-center">
+                                      <span className="text-indigo-600 text-sm font-medium flex items-center justify-center">
+                                        <PlayCircle className="h-4 w-4 mr-1" />
+                                        Watch on YouTube
+                                      </span>
+                                    </div>
+                                  </a>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <div className="mt-8 p-6 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-amber-200 shadow-md">
+                      {/* Course and Thematic Area at the top with emphasized styling */}
+                      {(course || thematicArea) && (
+                        <div className="mb-6 pb-3 border-b border-amber-200">
+                          {course && (
+                            <p className="text-indigo-700 font-bold text-lg mb-1">
+                              Course:{" "}
+                              <span className="font-semibold text-indigo-600">
+                                {course}
+                              </span>
+                            </p>
+                          )}
+                          {thematicArea && (
+                            <p className="text-indigo-700 font-bold text-lg">
+                              Thematic Area:{" "}
+                              <span className="font-semibold text-indigo-600">
+                                {thematicArea}
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center mb-4 border-b border-amber-200 pb-2">
+                        <h3 className="font-bold text-amber-800 text-lg">
+                          Explanation
+                        </h3>
+
+                        <button
+                          onClick={getAIExplanation}
+                          disabled={isLoadingAI}
+                          className="flex items-center px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 transition-colors"
+                        >
+                          {isLoadingAI ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              <Brain className="h-4 w-4 mr-1" />
+                              GibiInfoA
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="text-gray-800">
                         <p className="leading-relaxed">
                           {renderWithMath(
-                            `The correct answer is ${String.fromCharCode(65 + correctAnswerIndex)}. ${options[correctAnswerIndex]}`,
+                            cleanExplanation ||
+                              `The correct answer is ${String.fromCharCode(
+                                65 + correctAnswerIndex
+                              )}. ${options[correctAnswerIndex]}`
                           )}
                         </p>
-                      )}
+                      </div>
                     </div>
-
-                    // With this: */}
-                    <div className="text-gray-800">
-                      <p className="leading-relaxed">
-                        {renderWithMath(
-                          cleanExplanation ||
-                            `The correct answer is ${String.fromCharCode(
-                              65 + correctAnswerIndex
-                            )}. ${options[correctAnswerIndex]}`
-                        )}
-                      </p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
               {/* Navigation Buttons - Made responsive */}
-              <div className="flex flex-col sm:flex-row justify-between mt-4 gap-2">
+              <div className="flex flex-col sm:flex-row justify-between mt-4 gap-2 p-8">
                 <button
                   onClick={goToPrevious}
                   className="py-3 bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-32"

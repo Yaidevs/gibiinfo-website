@@ -6,6 +6,7 @@ import logo from "../assets/logo.png"
 import { Link } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { logout } from "./ExitExam/data/slice/authSlice"
+import { FaUser, FaSignOutAlt, FaBook, FaUserCircle } from "react-icons/fa"
 
 const Header = ({ menuOpen, setMenuOpen }) => {
   const menuRef = useRef(null)
@@ -27,7 +28,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Get first letter of email for profile circle
   const getProfileInitial = () => {
     const email = getUserEmail()
-    
+
     if (email) {
       return email.charAt(0).toUpperCase()
     }
@@ -94,6 +95,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             <span className="text-3xl font-bold">Gibi Info</span>
           </div>
         </Link>
+
         {/* Mobile Menu Button */}
         <button className="lg:hidden text-white focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <MdClose size={30} /> : <MdMenu size={30} />}
@@ -107,11 +109,12 @@ const Header = ({ menuOpen, setMenuOpen }) => {
           }`}
         >
           <div className="lg:flex lg:space-x-6 text-center lg:text-left py-6 lg:py-0 w-full lg:w-auto">
-            {["Home", "About Us", "Featured", "Testimonial"].map((item) => (
+            {["Home", "About Us", "Featured"].map((item) => (
               <Link
                 to={`/#${item.toLowerCase().replace(" ", "")}`}
                 className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
                 key={item}
+                onClick={() => setMenuOpen(false)}
               >
                 {item}
               </Link>
@@ -120,13 +123,59 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             <Link
               to="/exit-exam"
               className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+              onClick={() => setMenuOpen(false)}
             >
               Exit Exam
             </Link>
+            <Link
+              to="/my-exams"
+              className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+              onClick={() => setMenuOpen(false)}
+            >
+              My Exams
+            </Link>
           </div>
+
+          {/* Mobile User Profile Menu - Only shown when menu is open and authenticated */}
+          {isAuthenticated && (
+            <div className="lg:hidden bg-[#007070] py-2 px-6 w-full mt-2">
+              <div className="flex items-center py-3 border-b border-[#006060]">
+                <div className="w-8 h-8 rounded-full bg-white text-[#008080] flex items-center justify-center font-bold mr-3">
+                  {getProfileInitial()}
+                </div>
+                <span className="text-white">{getUserEmail() || "User"}</span>
+              </div>
+              <Link
+                to="/my-exams"
+                className="flex items-center py-3 text-white hover:bg-[#006060] px-2 rounded"
+                onClick={() => setMenuOpen(false)}
+              >
+                <FaBook className="mr-3" />
+                My Exams
+              </Link>
+              <Link
+                to="/profile"
+                className="flex items-center py-3 text-white hover:bg-[#006060] px-2 rounded"
+                onClick={() => setMenuOpen(false)}
+              >
+                <FaUser className="mr-3" />
+                Profile
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout()
+                  setMenuOpen(false)
+                }}
+                className="flex items-center w-full py-3 text-white hover:bg-[#006060] px-2 rounded"
+              >
+                <FaSignOutAlt className="mr-3" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </nav>
 
-        {/* Desktop Buttons and User Profile */}
+        {/* Desktop Download Button */}
         <div className="hidden lg:flex items-center space-x-4">
           <button
             onClick={() => window.open("https://t.me/enterance_exam", "_blank")}
@@ -135,7 +184,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             Download
           </button>
 
-          {/* User Profile Circle - Only shown when authenticated */}
+          {/* Desktop User Profile - Only shown when authenticated */}
           {isAuthenticated && (
             <div className="relative">
               <div
@@ -155,22 +204,25 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   <div className="px-4 py-2 text-sm text-gray-700 border-b">{getUserEmail() || "User"}</div>
                   <Link
                     to="/my-exams"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setDropdownOpen(false)}
                   >
+                    <FaBook className="mr-2 text-gray-500" />
                     My Exams
                   </Link>
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setDropdownOpen(false)}
                   >
+                    <FaUserCircle className="mr-2 text-gray-500" />
                     Profile
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                   >
+                    <FaSignOutAlt className="mr-2" />
                     Sign Out
                   </button>
                 </div>
@@ -178,35 +230,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             </div>
           )}
         </div>
-
-        {/* Mobile User Profile - Only shown when authenticated */}
-        {isAuthenticated && (
-          <div className="lg:hidden flex items-center">
-            <div
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="w-10 h-10 rounded-full bg-white text-[#008080] flex items-center justify-center font-bold cursor-pointer"
-            >
-              {getProfileInitial()}
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Mobile User Profile Menu - Only shown when menu is open and authenticated */}
-      {menuOpen && isAuthenticated && (
-        <div className="lg:hidden bg-[#007070] py-2 px-6">
-          <div className="text-white py-2 border-b border-[#006060]">{getUserEmail() || "User"}</div>
-          <Link to="/my-exams" className="block py-2 text-white">
-            My Exams
-          </Link>
-          <Link to="/profile" className="block py-2 text-white">
-            Profile
-          </Link>
-          <button onClick={handleLogout} className="block w-full text-left py-2 text-white">
-            Sign Out
-          </button>
-        </div>
-      )}
     </header>
   )
 }

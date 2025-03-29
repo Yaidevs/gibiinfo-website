@@ -3,16 +3,15 @@ import { BASE_URL } from "../../../../constants";
 import { getTokenFromCookies } from "../../../../shared/getToken.mjs";
 import { USER_URL } from "../../../../constants";
 
-
 const apiBasePath = "/exit-exam";
 
 export const exitexamApi = createApi({
   reducerPath: "exitexamApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
+    baseUrl: USER_URL,
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies();
-      console.log('TOKENNNNN',token)
+      console.log("TOKENNNNN", token);
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -110,6 +109,9 @@ export const exitexamApi = createApi({
         body: data,
       }),
     }),
+    askAI: builder.mutation({
+      query: (id) => ({ url: `/ask/gibi-info-ai/`, method: "POST", body: id }),
+    }),
   }),
 });
 
@@ -130,4 +132,5 @@ export const {
   useGetBankAccountsQuery,
   useSubscribeManualPaymentMutation,
   useGetExitExamInfoQuery,
+  useAskAIMutation,
 } = exitexamApi;
