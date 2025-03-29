@@ -724,7 +724,7 @@ export default function ExamInterface() {
                           ) : (
                             <>
                               <Brain className="h-4 w-4 mr-1" />
-                              GibiInfoA
+                              Use GibiInfo AI
                             </>
                           )}
                         </button>
