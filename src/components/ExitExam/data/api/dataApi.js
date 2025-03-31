@@ -46,6 +46,9 @@ export const exitexamApi = createApi({
     getDepartments: builder.query({
       query: () => ({ url: `/department/` }),
     }),
+    getMyExitExams: builder.query({
+      query: () => ({ url: `/package/my-exit-packages/` }),
+    }),
     getBankAccounts: builder.query({
       query: () => ({ url: `/setting/bank-account/` }),
     }),
@@ -133,4 +136,5 @@ export const {
   useSubscribeManualPaymentMutation,
   useGetExitExamInfoQuery,
   useAskAIMutation,
+  useGetMyExitExamsQuery,
 } = exitexamApi;

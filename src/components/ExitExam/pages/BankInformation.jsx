@@ -14,8 +14,7 @@ const BankInformation = () => {
   const navigate = useNavigate()
 
   // Get exam details from location state
-  const { examId, examTitle, price, userId, departmentId, packageId } = location.state || {}
-  console.log("EEEEEEEEEEE", examId, examTitle, price, userId, departmentId, packageId)
+  const { examTitle, price, userId, departmentId, packageId } = location.state || {}
 
   // Fetch banks from API
   const { data: banksData, isLoading: isBanksLoading, error: banksError } = useGetBankAccountsQuery()
@@ -111,7 +110,7 @@ const BankInformation = () => {
 
       // Redirect to success page or exam page after a delay
       setTimeout(() => {
-        navigate(`/generate-exam/${examId}`)
+        navigate(`/generate-exam/${packageId}`)
       }, 3000)
     } catch (error) {
       console.error("Verification failed:", error)
@@ -123,10 +122,10 @@ const BankInformation = () => {
 
   // If no exam details are available, redirect to departments
   useEffect(() => {
-    if (!examId || !examTitle) {
+    if (!packageId || !examTitle) {
       navigate("/departments")
     }
-  }, [examId, examTitle, navigate])
+  }, [packageId, examTitle, navigate])
 
   // Set first bank as default when data loads
   useEffect(() => {

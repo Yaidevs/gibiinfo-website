@@ -22,7 +22,10 @@ export const userApi = createApi({
         body: data,
       }),
     }),
+    validateToken: builder.query({
+      query: (id) => ({ url: `/user/auth/validate-token/` }),
+    }),
   }),
 });
 
-export const { useCreateUserMutation } = userApi;
+export const { useCreateUserMutation, useValidateTokenQuery } = userApi;
