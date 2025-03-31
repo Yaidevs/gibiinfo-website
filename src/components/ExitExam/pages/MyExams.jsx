@@ -173,9 +173,9 @@ const MyExams = () => {
             {filteredPackages.map((pkg) => (
               <div
                 key={pkg._id}
-                className="bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-purple-600"
+                className="bg-white rounded-xl shadow-lg overflow-hidden"
               >
-                <div className="bg-gradient-to-r from-purple-800 to-purple-600 px-6 py-4">
+                <div className="bg-gradient-to-r from-teal-800 to-teal-600 px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <FaBoxOpen className="h-6 w-6 text-white mr-3" />
@@ -195,7 +195,7 @@ const MyExams = () => {
                   {/* Included Exams */}
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <FaListAlt className="mr-2 text-purple-600" />
+                      <FaListAlt className="mr-2 text-teal-600" />
                       Included Exams:
                     </h3>
 
@@ -226,7 +226,7 @@ const MyExams = () => {
                                   <FaBook className="mr-1 h-3 w-3" />
                                   {countQuestions(exam)} questions
                                 </div>
-                                <div className="bg-purple-100 px-3 py-1 rounded-full text-sm text-purple-700 flex items-center">
+                                <div className="bg-purple-100 px-3 py-1 rounded-full text-sm text-teal-700 flex items-center">
                                   <FaGraduationCap className="mr-1 h-3 w-3" />
                                   Exit Exam
                                 </div>
@@ -234,7 +234,7 @@ const MyExams = () => {
 
                               <Link
                                 to={`/generate-exam/${exam._id}`}
-                                className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition-colors"
+                                className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 transition-colors"
                               >
                                 <FaPlayCircle className="mr-2" />
                                 Start Exam
