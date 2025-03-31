@@ -8,7 +8,7 @@ const apiBasePath = "/exit-exam";
 export const exitexamApi = createApi({
   reducerPath: "exitexamApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
+    baseUrl: USER_URL,
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies();
       console.log("TOKENNNNN", token);
@@ -41,7 +41,7 @@ export const exitexamApi = createApi({
       query: (id) => ({ url: `/department/${id}` }),
     }),
     getExitExamInfo: builder.query({
-      query: (id) => ({ url: `/exit-exam/package/current-exam//${id}` }),
+      query: (id) => ({ url: `/exit-exam/package/current-exam/${id}` }),
     }),
     getDepartments: builder.query({
       query: () => ({ url: `/department/` }),

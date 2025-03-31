@@ -56,6 +56,7 @@ const DepartmentDetails = () => {
   // State to store exam IDs and their corresponding info
   const [selectedExamId, setSelectedExamId] = useState(null)
   const { data: examInfo, isLoading: examInfoLoading } = useGetExitExamInfoQuery(id)
+  console.log('kkkkk',examInfo)
 
   // State to store all exam info
   const [examsWithInfo, setExamsWithInfo] = useState([])
