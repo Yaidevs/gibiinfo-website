@@ -214,9 +214,11 @@ const DepartmentDetails = () => {
         type: "Semister",
       }).unwrap()
 
+      console.log('Payment response',response?.data.data)
+
       // Redirect to payment gateway if URL is available
-      if (response && response.checkoutUrl) {
-        window.location.href = response.checkoutUrl
+      if (response && response?.data.data.checkout_url) {
+        window.location.href = response?.data.data.checkout_url
       } else {
         throw new Error("No checkout URL received")
       }

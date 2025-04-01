@@ -1,94 +1,111 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useLocation, useNavigate, Link } from "react-router-dom"
-import { FaUniversity, FaCopy, FaCheck, FaUpload, FaFileImage, FaExclamationTriangle } from "react-icons/fa"
-import { useGetBankAccountsQuery, useSubscribeManualPaymentMutation } from "../data/api/dataApi"
-import { storage } from "../../../../firebase"
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
-import { v4 } from "uuid"
-
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import {
+  FaUniversity,
+  FaCopy,
+  FaCheck,
+  FaUpload,
+  FaFileImage,
+  FaExclamationTriangle,
+} from "react-icons/fa";
+import {
+  useGetBankAccountsQuery,
+  useSubscribeManualPaymentMutation,
+} from "../data/api/dataApi";
+import { storage } from "../../../../firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
 
 const BankInformation = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Get exam details from location state
-  const { examTitle, price, userId, departmentId, packageId } = location.state || {}
+  const { examTitle, price, userId, departmentId, packageId } =
+    location.state || {};
 
   // Fetch banks from API
-  const { data: banksData, isLoading: isBanksLoading, error: banksError } = useGetBankAccountsQuery()
-  const [subscribeManual] = useSubscribeManualPaymentMutation()
+  const {
+    data: banksData,
+    isLoading: isBanksLoading,
+    error: banksError,
+  } = useGetBankAccountsQuery();
+  const [subscribeManual] = useSubscribeManualPaymentMutation();
 
   // State for receipt upload and form
-  const [receiptFile, setReceiptFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState("")
-  const [transactionId, setTransactionId] = useState("")
-  const [selectedBankId, setSelectedBankId] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitSuccess, setSubmitSuccess] = useState(false)
-  const [error, setError] = useState("")
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [selectedBankId, setSelectedBankId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   // Copy to clipboard functionality
-  const [copied, setCopied] = useState(null)
+  const [copied, setCopied] = useState(null);
 
   const copyToClipboard = (text, index) => {
-    navigator.clipboard.writeText(text)
-    setCopied(index)
-    setTimeout(() => setCopied(null), 2000)
-  }
+    navigator.clipboard.writeText(text);
+    setCopied(index);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   // Handle file selection
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setReceiptFile(file)
+      setReceiptFile(file);
       // Create a preview URL for the selected image
-      const objectUrl = URL.createObjectURL(file)
-      setPreviewUrl(objectUrl)
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
 
       // Clean up the object URL when component unmounts or when the file changes
-      return () => URL.revokeObjectURL(objectUrl)
+      return () => URL.revokeObjectURL(objectUrl);
     }
-  }
+  };
 
   // Handle bank selection
   const handleBankChange = (e) => {
-    const bankId = e.target.value
-    console.log("Selected bank ID:", bankId)
-    setSelectedBankId(bankId)
-  }
+    const bankId = e.target.value;
+    console.log("Selected bank ID:", bankId);
+    setSelectedBankId(bankId);
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!receiptFile) {
-      setError("Please upload a receipt image")
-      return
+      setError("Please upload a receipt image");
+      return;
     }
 
     if (!transactionId.trim()) {
-      setError("Please enter the transaction ID or reference number")
-      return
+      setError("Please enter the transaction ID or reference number");
+      return;
     }
 
     // Log the selectedBankId to debug
-    console.log("Submitting with bank ID:", selectedBankId)
+    console.log("Submitting with bank ID:", selectedBankId);
 
     if (!selectedBankId || selectedBankId === "") {
-      setError("Please select a bank")
-      return
+      setError("Please select a bank");
+      return;
     }
 
     try {
-      setIsSubmitting(true)
-      setError("")
+      setIsSubmitting(true);
+      setError("");
 
       // Upload image to Firebase Storage
-      const imageRef = ref(storage, `Receipt-images/${receiptFile.name + v4()}`)
-      await uploadBytes(imageRef, receiptFile)
-      const imageUrl = await getDownloadURL(imageRef)
+      const imageRef = ref(
+        storage,
+        `Receipt-images/${receiptFile.name + v4()}`
+      );
+      await uploadBytes(imageRef, receiptFile);
+      const imageUrl = await getDownloadURL(imageRef);
 
       // Prepare data according to API requirements
       const paymentData = {
@@ -97,43 +114,45 @@ const BankInformation = () => {
         type: "Semister", // Default value as specified
         profImage: imageUrl, // Firebase image URL instead of base64
         manualTransactionId: transactionId,
-        bankId: selectedBankId
-      }
+        bankId: selectedBankId,
+      };
 
-      console.log("Submitting payment data:", paymentData)
+      console.log("Submitting payment data:", paymentData);
 
       // Submit payment verification request
-      const response = await subscribeManual(paymentData).unwrap()
-      console.log("Payment verification response:", response)
+      const response = await subscribeManual(paymentData).unwrap();
+      console.log("Payment verification response:", response);
 
-      setSubmitSuccess(true)
+      setSubmitSuccess(true);
 
       // Redirect to success page or exam page after a delay
       setTimeout(() => {
-        navigate(`/generate-exam/${packageId}`)
-      }, 3000)
+        navigate(`/my-exams`);
+      }, 3000);
     } catch (error) {
-      console.error("Verification failed:", error)
-      setError("Failed to verify your payment. Please try again or contact support.")
+      console.error("Verification failed:", error);
+      setError(
+        "Failed to verify your payment. Please try again or contact support."
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // If no exam details are available, redirect to departments
   useEffect(() => {
     if (!packageId || !examTitle) {
-      navigate("/departments")
+      navigate("/departments");
     }
-  }, [packageId, examTitle, navigate])
+  }, [packageId, examTitle, navigate]);
 
   // Set first bank as default when data loads
   useEffect(() => {
     if (banksData?.data?.length > 0 && !selectedBankId) {
-      console.log("Setting default bank ID:", banksData.data[0]._id)
-      setSelectedBankId(banksData.data[0]._id.toString())
+      console.log("Setting default bank ID:", banksData.data[0]._id);
+      setSelectedBankId(banksData.data[0]._id.toString());
     }
-  }, [banksData, selectedBankId])
+  }, [banksData, selectedBankId]);
 
   return (
     <div className="bg-gray-50 min-h-screen pt-[120px] pb-16">
@@ -149,18 +168,24 @@ const BankInformation = () => {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FaCheck className="h-8 w-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Verification Submitted!</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Payment Verification Submitted!
+              </h2>
               <p className="text-gray-600 mb-6">
-                We've received your payment verification. Your access to the exam will be activated once the payment is
-                confirmed.
+                We've received your payment verification. Your access to the
+                exam will be activated once the payment is confirmed.
               </p>
-              <p className="text-gray-600 mb-6">You'll be redirected to the exam page in a moment...</p>
+              <p className="text-gray-600 mb-6">
+                You'll be redirected to the exam page in a moment...
+              </p>
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
             </div>
           ) : (
             <div className="p-6">
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Purchase Details</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  Purchase Details
+                </h2>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Exam:</span>
@@ -172,13 +197,17 @@ const BankInformation = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Amount to Pay:</span>
-                    <span className="font-medium text-purple-700">{price} ETB</span>
+                    <span className="font-medium text-purple-700">
+                      {price} ETB
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="mb-8">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Bank Account Details</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Bank Account Details
+                </h2>
 
                 {isBanksLoading ? (
                   <div className="text-center py-4">
@@ -200,7 +229,9 @@ const BankInformation = () => {
                       <div
                         key={bank._id}
                         className={`border rounded-lg p-4 transition-colors ${
-                          selectedBankId === bank._id ? "border-purple-500 bg-purple-50" : "border-gray-200"
+                          selectedBankId === bank._id
+                            ? "border-purple-500 bg-purple-50"
+                            : "border-gray-200"
                         }`}
                       >
                         <div className="flex items-start">
@@ -216,22 +247,35 @@ const BankInformation = () => {
                           <div className="flex-1">
                             <div className="flex items-center mb-3">
                               <FaUniversity className="h-5 w-5 text-purple-600 mr-2" />
-                              <h3 className="font-medium text-gray-900">{bank.bankName}</h3>
+                              <h3 className="font-medium text-gray-900">
+                                {bank.bankName}
+                              </h3>
                             </div>
 
                             <div className="space-y-2 text-sm">
                               <div className="flex justify-between">
-                                <span className="text-gray-600">Account Name:</span>
+                                <span className="text-gray-600">
+                                  Account Name:
+                                </span>
                                 <span>{bank.accountHolderName}</span>
                               </div>
 
                               <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Account Number:</span>
+                                <span className="text-gray-600">
+                                  Account Number:
+                                </span>
                                 <div className="flex items-center">
-                                  <span className="mr-2 font-mono">{bank.accountNumber}</span>
+                                  <span className="mr-2 font-mono">
+                                    {bank.accountNumber}
+                                  </span>
                                   <button
                                     type="button"
-                                    onClick={() => copyToClipboard(bank.accountNumber, `account-${bank._id}`)}
+                                    onClick={() =>
+                                      copyToClipboard(
+                                        bank.accountNumber,
+                                        `account-${bank._id}`
+                                      )
+                                    }
                                     className="text-purple-600 hover:text-purple-800"
                                     title="Copy to clipboard"
                                   >
@@ -260,15 +304,21 @@ const BankInformation = () => {
               </div>
 
               <div className="border-t border-gray-200 pt-6 mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Verify Your Payment</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Verify Your Payment
+                </h2>
                 <p className="text-gray-600 mb-4">
-                  After making the bank transfer, please upload a screenshot or photo of your receipt and provide the
-                  transaction ID to verify your payment.
+                  After making the bank transfer, please upload a screenshot or
+                  photo of your receipt and provide the transaction ID to verify
+                  your payment.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label htmlFor="transactionId" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="transactionId"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Transaction ID / Reference Number
                     </label>
                     <input
@@ -283,7 +333,9 @@ const BankInformation = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Receipt Screenshot</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Receipt Screenshot
+                    </label>
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                       {previewUrl ? (
                         <div className="space-y-3">
@@ -295,8 +347,8 @@ const BankInformation = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              setReceiptFile(null)
-                              setPreviewUrl("")
+                              setReceiptFile(null);
+                              setPreviewUrl("");
                             }}
                             className="text-sm text-red-600 hover:text-red-800"
                           >
@@ -324,13 +376,19 @@ const BankInformation = () => {
                             </label>
                             <p>or drag and drop</p>
                           </div>
-                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG, GIF up to 5MB
+                          </p>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {error && <div className="text-red-600 text-sm p-2 bg-red-50 rounded-md">{error}</div>}
+                  {error && (
+                    <div className="text-red-600 text-sm p-2 bg-red-50 rounded-md">
+                      {error}
+                    </div>
+                  )}
 
                   <div className="flex justify-between pt-4">
                     <Link
@@ -343,7 +401,9 @@ const BankInformation = () => {
                       type="submit"
                       disabled={isSubmitting || !selectedBankId}
                       className={`px-6 py-2 ${
-                        isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"
+                        isSubmitting
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-purple-600 hover:bg-purple-700"
                       } text-white rounded-md transition-colors flex items-center`}
                     >
                       {isSubmitting ? (
@@ -366,8 +426,7 @@ const BankInformation = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default BankInformation
-
+export default BankInformation;
