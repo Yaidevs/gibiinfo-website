@@ -348,14 +348,14 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   <FaBook className="mr-3" />
                   My Exams
                 </Link>
-                <Link
+                {/* <Link
                   to="/profile"
                   className="flex items-center py-3 text-white hover:bg-[#006060] px-2 rounded"
                   onClick={() => setMenuOpen(false)}
                 >
                   <FaUser className="mr-3" />
                   Profile
-                </Link>
+                </Link> */}
                 <button
                   onClick={() => {
                     handleLogout();
@@ -418,14 +418,14 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                     <FaBook className="mr-2 text-gray-500" />
                     My Exams
                   </Link>
-                  <Link
+                  {/* <Link
                     to="/profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setDropdownOpen(false)}
                   >
                     <FaUserCircle className="mr-2 text-gray-500" />
                     Profile
-                  </Link>
+                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
