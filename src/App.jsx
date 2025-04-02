@@ -111,7 +111,7 @@ function App() {
               </>
             }
           />
-          <Route
+          {/* <Route
             path="/profile"
             element={
               <>
@@ -119,7 +119,7 @@ function App() {
                 <Footer/>
               </>
             }
-          />
+          /> */}
         </Routes>
       </div>
     </Router>
