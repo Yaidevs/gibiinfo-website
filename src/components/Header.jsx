@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MdMenu, MdClose } from "react-icons/md";
 import logo from "../assets/logo.png";
-import googleImg from "../assets/google.png";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, setToken } from "./ExitExam/data/slice/authSlice";
@@ -11,7 +10,6 @@ import {
   FaUser,
   FaSignOutAlt,
   FaBook,
-  FaUserCircle,
   FaPhone,
   FaTimes,
   FaExclamationCircle,
@@ -77,7 +75,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [signUpStep, setSignUpStep] = useState(1); // 1: Phone, 2: Google Auth
   const [isProcessing, setIsProcessing] = useState(false);
   const [createUser] = useCreateUserMutation();
 
@@ -167,7 +164,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Open sign up modal
   const handleOpenSignUpModal = () => {
     setIsSignUpModalOpen(true);
-    setSignUpStep(1);
     setPhoneNumber("");
     setPhoneError("");
   };
@@ -175,7 +171,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Close sign up modal
   const handleCloseSignUpModal = () => {
     setIsSignUpModalOpen(false);
-    setSignUpStep(1);
   };
 
   // Validate phone number
@@ -185,21 +180,8 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     return phoneRegex.test(number);
   };
 
-  // Handle phone number submission
-  const handlePhoneSubmit = (e) => {
-    e.preventDefault();
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      setPhoneError("Please enter a valid phone number");
-      return;
-    }
-
-    setPhoneError("");
-    setSignUpStep(2); // Move to Google auth step
-  };
-
-  // Handle Google login
-  const handleGoogleLogin = async () => {
+  // Handle Google login with phone number
+  const handleGoogleLoginWithPhone = async (phoneNum) => {
     try {
       setIsProcessing(true);
       const user = await signInWithGoogle();
@@ -209,8 +191,10 @@ const Header = ({ menuOpen, setMenuOpen }) => {
       localStorage.setItem("userEmail", email);
 
       // Register user with API
-      const response = await createUser({ email, phoneNumber }).unwrap();
-      console.log('respppppp',response)
+      const response = await createUser({
+        email,
+        phoneNumber: phoneNum,
+      }).unwrap();
 
       // Check if registration was successful
       if (!response.success) {
@@ -222,7 +206,8 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             "This phone number is already registered with different email address!",
           type: "error",
         });
-        // Reset to phone number step
+
+        setIsProcessing(false);
         handleCloseSignUpModal();
         return;
       }
@@ -260,6 +245,20 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Handle phone number submission and immediately trigger Google sign-in
+  const handlePhoneSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      setPhoneError("Please enter a valid phone number");
+      return;
+    }
+
+    setPhoneError("");
+    // Immediately trigger Google sign-in with the provided phone number
+    handleGoogleLoginWithPhone(phoneNumber);
   };
 
   return (
@@ -311,14 +310,28 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                 {item}
               </Link>
             ))}
-            {/* Exit Exam Link */}
-            <Link
-              to="/exit-exam"
-              className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
-              onClick={() => setMenuOpen(false)}
-            >
-              Exit Exam
-            </Link>
+            {/* Exit Exam Link with blinking animation */}
+            {isAuthenticated ? (
+              <Link
+                to="/exit-exam"
+                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+                onClick={() => setMenuOpen(false)}
+              >
+                Exit Exam
+              </Link>
+            ) : (
+              <Link
+                to="/exit-exam"
+                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none relative animate-pulse bg-opacity-70 font-bold"
+                onClick={() => setMenuOpen(false)}
+              >
+                Exit Exam
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                </span>
+              </Link>
+            )}
             {isAuthenticated && (
               <Link
                 to="/my-exams"
@@ -348,14 +361,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   <FaBook className="mr-3" />
                   My Exams
                 </Link>
-                {/* <Link
-                  to="/profile"
-                  className="flex items-center py-3 text-white hover:bg-[#006060] px-2 rounded"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <FaUser className="mr-3" />
-                  Profile
-                </Link> */}
                 <button
                   onClick={() => {
                     handleLogout();
@@ -418,14 +423,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                     <FaBook className="mr-2 text-gray-500" />
                     My Exams
                   </Link>
-                  {/* <Link
-                    to="/profile"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <FaUserCircle className="mr-2 text-gray-500" />
-                    Profile
-                  </Link> */}
                   <button
                     onClick={handleLogout}
                     className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -438,24 +435,22 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             </div>
           )}
 
-          <button
-            onClick={() => window.open("https://t.me/enterance_exam", "_blank")}
+          <Link
+            to="/exit-exam"
             className="bg-transparent border border-white text-white px-4 py-2 rounded-md hover:bg-[#007070] transition-colors"
           >
-            Download
-          </button>
+            Get Started
+          </Link>
         </div>
       </div>
 
-      {/* Sign Up Modal */}
+      {/* Sign Up Modal - Only Phone Number Step */}
       {isSignUpModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             {/* Modal Header */}
             <div className="bg-[#008080] text-white px-6 py-4 flex justify-between items-center">
-              <h3 className="text-xl font-semibold">
-                {signUpStep === 1 ? "Sign Up / Sign In" : "Connect with Google"}
-              </h3>
+              <h3 className="text-xl font-semibold">Sign Up / Sign In</h3>
               <button
                 onClick={handleCloseSignUpModal}
                 className="text-white hover:text-gray-200"
@@ -464,127 +459,71 @@ const Header = ({ menuOpen, setMenuOpen }) => {
               </button>
             </div>
 
-            {/* Modal Body */}
+            {/* Modal Body - Only Phone Number Step */}
             <div className="p-6">
-              {/* Step 1: Phone Number */}
-              {signUpStep === 1 && (
-                <form onSubmit={handlePhoneSubmit}>
-                  <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                      Enter Your Phone Number
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      Please enter your phone number to continue with the sign
-                      up process.
-                    </p>
-
-                    <div className="mt-4">
-                      <label
-                        htmlFor="phoneNumber"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Phone Number
-                      </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <FaPhone className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <input
-                          type="tel"
-                          id="phoneNumber"
-                          name="phoneNumber"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder="+251 91 234 5678"
-                          className="pl-10 w-full px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080]"
-                          required
-                        />
-                      </div>
-                      {phoneError && (
-                        <p className="mt-2 text-sm text-red-600">
-                          {phoneError}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      onClick={handleCloseSignUpModal}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#007070] transition-colors"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* Step 2: Google Authentication */}
-              {signUpStep === 2 && (
-                <div>
+              <form onSubmit={handlePhoneSubmit}>
+                <div className="mb-6">
                   <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                    Sign in with Google
+                    Enter Your Phone Number
                   </h4>
-                  <p className="text-gray-600 mb-6">
-                    Please sign in with your Google account to complete the
+                  <p className="text-gray-600 mb-4">
+                    Please enter your phone number to continue with the sign up
                     process.
                   </p>
 
-                  <div className="flex justify-center mb-6">
-                    <button
-                      onClick={handleGoogleLogin}
-                      disabled={isProcessing}
-                      className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                  <div className="mt-4">
+                    <label
+                      htmlFor="phoneNumber"
+                      className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      {isProcessing ? (
-                        <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700 mr-3"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <>
-                          <img
-                            src={googleImg || "/placeholder.svg"}
-                            className="w-5 h-5 mr-2"
-                            alt="Google logo"
-                          />
-                          Sign in with Google
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  <div className="text-sm text-gray-500 mb-4">
-                    <p>Phone number: {phoneNumber}</p>
-                  </div>
-
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      onClick={() => setSignUpStep(1)}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-                      disabled={isProcessing}
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCloseSignUpModal}
-                      className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
-                      disabled={isProcessing}
-                    >
-                      Cancel
-                    </button>
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaPhone className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="tel"
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+251 91 234 5678"
+                        className="pl-10 w-full px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#008080]"
+                        required
+                      />
+                    </div>
+                    {phoneError && (
+                      <p className="mt-2 text-sm text-red-600">{phoneError}</p>
+                    )}
                   </div>
                 </div>
-              )}
+
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={handleCloseSignUpModal}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                    disabled={isProcessing}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#008080] text-white rounded-md hover:bg-[#007070] transition-colors flex items-center"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      "Continue"
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

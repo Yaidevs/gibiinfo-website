@@ -7,3 +7,32 @@
     scroll-behavior: smooth;
   }
 }
+/* Add this to your existing CSS file */
+@keyframes attention-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.exit-exam-link {
+  animation: attention-pulse 2s infinite;
+  position: relative;
+}
+
+.exit-exam-link::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #ffd700;
+  border-radius: 50%;
+}
+

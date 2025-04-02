@@ -158,7 +158,7 @@ const BankInformation = () => {
       <div className="max-w-5xl mx-auto px-4">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white px-6 py-4">
+          <div className="bg-gradient-to-r from-teal-800 to-teal-600 opacity-90 text-white px-6 py-4">
             <h1 className="text-xl font-semibold">Bank Transfer Information</h1>
           </div>
 
@@ -173,7 +173,7 @@ const BankInformation = () => {
                 payment is confirmed and then you can access it in your my exams pages. Wait 5 minutes please.
               </p>
               <p className="text-gray-600 mb-6">If your package is not released contact us : +251948952757</p>
-              {/* <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div> */}
+              {/* <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div> */}
             </div>
           ) : (
             <div className="p-6">
@@ -183,30 +183,30 @@ const BankInformation = () => {
                 <div>
                   <div className="mb-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                      <FaMoneyBillWave className="mr-2 text-purple-600" />
+                      <FaMoneyBillWave className="mr-2 text-teal-600" />
                       Purchase Details
                     </h2>
-                    <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                    <div className="bg-teal-50 p-4 rounded-lg border border-teal-100">
                       <div className="flex justify-between mb-2">
                         <span className="text-gray-600">Package:</span>
                         <span className="font-medium">{examTitle}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Amount to Pay:</span>
-                        <span className="font-medium text-purple-700">{price} ETB</span>
+                        <span className="font-medium text-teal-600">{price} ETB</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mb-8">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <FaUniversity className="mr-2 text-purple-600" />
+                      <FaUniversity className="mr-2 text-teal-600" />
                       Select Bank Account
                     </h2>
 
                     {isBanksLoading ? (
                       <div className="text-center py-4">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto mb-2"></div>
                         <p className="text-gray-600">Loading bank accounts...</p>
                       </div>
                     ) : banksError ? (
@@ -226,8 +226,8 @@ const BankInformation = () => {
                             onClick={() => handleBankChange(bank._id.toString())}
                             className={`border rounded-lg p-3 transition-all cursor-pointer hover:shadow-md ${
                               selectedBankId === bank._id.toString()
-                                ? "border-purple-500 bg-purple-50 ring-2 ring-purple-200"
-                                : "border-gray-200 hover:border-purple-200"
+                                ? "border-teal-500 bg-teal-50 ring-2 ring-teal-200"
+                                : "border-gray-200 hover:border-teal-200"
                             }`}
                           >
                             <div className="flex flex-col items-center text-center">
@@ -250,7 +250,7 @@ const BankInformation = () => {
                   {selectedBank && (
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                       <h3 className="font-medium text-gray-900 mb-3 flex items-center">
-                        <FaUniversity className="text-purple-600 mr-2" />
+                        <FaUniversity className="text-teal-600 mr-2" />
                         {selectedBank.bankName} Details
                       </h3>
                       <div className="space-y-2 text-sm">
@@ -269,7 +269,7 @@ const BankInformation = () => {
                                 e.stopPropagation()
                                 copyToClipboard(selectedBank.accountNumber, `account-${selectedBank._id}`)
                               }}
-                              className="ml-2 text-purple-600 hover:text-purple-800"
+                              className="ml-2 text-teal-600 hover:text-teal-800"
                               title="Copy to clipboard"
                             >
                               {copied === `account-${selectedBank._id}` ? (
@@ -295,7 +295,7 @@ const BankInformation = () => {
                 {/* Right column: Payment verification form */}
                 <div className="border-t pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-8">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <FaReceipt className="mr-2 text-purple-600" />
+                    <FaReceipt className="mr-2 text-teal-600" />
                     Verify Your Payment
                   </h2>
                   <p className="text-gray-600 mb-4 text-sm">
@@ -313,7 +313,7 @@ const BankInformation = () => {
                         id="transactionId"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                         placeholder="Enter the transaction ID or reference number"
                         required
                       />
@@ -346,7 +346,7 @@ const BankInformation = () => {
                             <div className="text-sm text-gray-600">
                               <label
                                 htmlFor="receipt-upload"
-                                className="relative cursor-pointer text-purple-600 hover:text-purple-800"
+                                className="relative cursor-pointer text-teal-600 hover:text-teal-800"
                               >
                                 <span>Upload a file</span>
                                 <input
@@ -375,7 +375,7 @@ const BankInformation = () => {
                         className={`px-6 py-2 ${
                           isSubmitting || !selectedBankId
                             ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-purple-600 hover:bg-purple-700"
+                            : "bg-teal-600 hover:bg-teal-700"
                         } text-white rounded-md transition-colors flex items-center`}
                       >
                         {isSubmitting ? (
