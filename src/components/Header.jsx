@@ -1,176 +1,296 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { MdMenu, MdClose } from "react-icons/md"
-import logo from "../assets/logo.png"
-import googleImg from "../assets/google.png"
-import { Link } from "react-router-dom"
-import { useSelector, useDispatch } from "react-redux"
-import { logout, setToken } from "./ExitExam/data/slice/authSlice"
-import { FaUser, FaSignOutAlt, FaBook, FaUserCircle, FaPhone, FaTimes } from "react-icons/fa"
-import { useCreateUserMutation } from "./ExitExam/data/api/userApi"
-import { signInWithGoogle } from "../../firebase"
+import { useEffect, useRef, useState } from "react";
+import { MdMenu, MdClose } from "react-icons/md";
+import logo from "../assets/logo.png";
+import googleImg from "../assets/google.png";
+import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout, setToken } from "./ExitExam/data/slice/authSlice";
+import {
+  FaUser,
+  FaSignOutAlt,
+  FaBook,
+  FaUserCircle,
+  FaPhone,
+  FaTimes,
+  FaExclamationCircle,
+  FaCheckCircle,
+} from "react-icons/fa";
+import { signInWithGoogle } from "../../firebase";
+import { useCreateUserMutation } from "./ExitExam/data/api/userApi";
 
+// Toast component
+const Toast = ({ message, type = "error", onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
 
+  return (
+    <div className="fixed top-20 right-4 z-50 max-w-md">
+      <div
+        className={`flex items-center p-4 mb-4 rounded-lg shadow-lg ${
+          type === "error"
+            ? "bg-red-50 text-red-800"
+            : "bg-green-50 text-green-800"
+        }`}
+      >
+        <div
+          className={`flex-shrink-0 ${
+            type === "error" ? "text-red-500" : "text-green-500"
+          }`}
+        >
+          {type === "error" ? (
+            <FaExclamationCircle size={20} />
+          ) : (
+            <FaCheckCircle size={20} />
+          )}
+        </div>
+        <div className="ml-3 text-sm font-medium">{message}</div>
+        <button
+          type="button"
+          onClick={onClose}
+          className={`ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 ${
+            type === "error"
+              ? "bg-red-100 text-red-500 hover:bg-red-200"
+              : "bg-green-100 text-green-500 hover:bg-green-200"
+          }`}
+        >
+          <span className="sr-only">Close</span>
+          <FaTimes />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Header = ({ menuOpen, setMenuOpen }) => {
-  const menuRef = useRef(null)
-  const dispatch = useDispatch()
-  const { isAuthenticated } = useSelector((state) => state.auth)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const menuRef = useRef(null);
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Sign up modal states
-  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false)
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [phoneError, setPhoneError] = useState("")
-  const [signUpStep, setSignUpStep] = useState(1) // 1: Phone, 2: Google Auth
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [createUser] = useCreateUserMutation()
+  const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [signUpStep, setSignUpStep] = useState(1); // 1: Phone, 2: Google Auth
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [createUser] = useCreateUserMutation();
+
+  // Toast state
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   // Get user email from localStorage if available
   const getUserEmail = () => {
     try {
-      const userEmail = localStorage.getItem("userEmail")
-      return userEmail || null
+      const userEmail = localStorage.getItem("userEmail");
+      return userEmail || null;
     } catch (error) {
-      console.error("Error getting user email:", error)
-      return null
+      console.error("Error getting user email:", error);
+      return null;
     }
-  }
+  };
 
   // Get first letter of email for profile circle
   const getProfileInitial = () => {
-    const email = getUserEmail()
+    const email = getUserEmail();
 
     if (email) {
-      return email.charAt(0).toUpperCase()
+      return email.charAt(0).toUpperCase();
     }
-    return "U" // Default fallback
-  }
+    return "U"; // Default fallback
+  };
 
   // Handle logout
   const handleLogout = () => {
-    dispatch(logout())
-    localStorage.removeItem("userEmail")
+    dispatch(logout());
+    localStorage.removeItem("userEmail");
     // Redirect to home or refresh page if needed
-    window.location.href = "/"
-  }
+    window.location.href = "/";
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpen(false)
+        setMenuOpen(false);
       }
-    }
+    };
 
     if (menuOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
     } else {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside);
     }
 
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [menuOpen])
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   // Handle dropdown clicks
   const handleProfileClick = () => {
-    setDropdownOpen(!dropdownOpen)
-  }
+    setDropdownOpen(!dropdownOpen);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutsideDropdown = (event) => {
-      const dropdown = document.getElementById("profile-dropdown")
-      const profileButton = document.getElementById("profile-button")
+      const dropdown = document.getElementById("profile-dropdown");
+      const profileButton = document.getElementById("profile-button");
 
-      if (dropdown && profileButton && !dropdown.contains(event.target) && !profileButton.contains(event.target)) {
-        setDropdownOpen(false)
+      if (
+        dropdown &&
+        profileButton &&
+        !dropdown.contains(event.target) &&
+        !profileButton.contains(event.target)
+      ) {
+        setDropdownOpen(false);
       }
-    }
+    };
 
     if (dropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutsideDropdown)
+      document.addEventListener("mousedown", handleClickOutsideDropdown);
     } else {
-      document.removeEventListener("mousedown", handleClickOutsideDropdown)
+      document.removeEventListener("mousedown", handleClickOutsideDropdown);
     }
 
-    return () => document.removeEventListener("mousedown", handleClickOutsideDropdown)
-  }, [dropdownOpen])
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutsideDropdown);
+  }, [dropdownOpen]);
 
   // Open sign up modal
   const handleOpenSignUpModal = () => {
-    setIsSignUpModalOpen(true)
-    setSignUpStep(1)
-    setPhoneNumber("")
-    setPhoneError("")
-  }
+    setIsSignUpModalOpen(true);
+    setSignUpStep(1);
+    setPhoneNumber("");
+    setPhoneError("");
+  };
 
   // Close sign up modal
   const handleCloseSignUpModal = () => {
-    setIsSignUpModalOpen(false)
-    setSignUpStep(1)
-  }
+    setIsSignUpModalOpen(false);
+    setSignUpStep(1);
+  };
 
   // Validate phone number
   const validatePhoneNumber = (number) => {
     // Basic validation - adjust as needed for your requirements
-    const phoneRegex = /^\+?[0-9]{10,15}$/
-    return phoneRegex.test(number)
-  }
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+    return phoneRegex.test(number);
+  };
 
   // Handle phone number submission
   const handlePhoneSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setPhoneError("Please enter a valid phone number")
-      return
+      setPhoneError("Please enter a valid phone number");
+      return;
     }
 
-    setPhoneError("")
-    setSignUpStep(2) // Move to Google auth step
-  }
+    setPhoneError("");
+    setSignUpStep(2); // Move to Google auth step
+  };
 
   // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      setIsProcessing(true)
-      const user = await signInWithGoogle()
-      const { email } = user
+      setIsProcessing(true);
+      const user = await signInWithGoogle();
+      const { email } = user;
 
       // Store email in localStorage for profile display
-      localStorage.setItem("userEmail", email)
+      localStorage.setItem("userEmail", email);
 
       // Register user with API
-      const register = await createUser({ email, phoneNumber }).unwrap()
+      const response = await createUser({ email, phoneNumber }).unwrap();
+      
+
+      // Check if registration was successful
+      if (!response.success) {
+        // Show error toast
+        setToast({
+          show: true,
+          message:
+            response.message ||
+            "Your phone number is already registered with different email address!",
+          type: "error",
+        });
+        // Reset to phone number step
+        setSignUpStep(1);
+        return;
+      }
 
       // Store token in Redux using the existing slice pattern
-      dispatch(setToken(register))
+      dispatch(setToken(response));
 
       // Close modal after successful login
-      handleCloseSignUpModal()
+      handleCloseSignUpModal();
+
+      // Show success toast
+      setToast({
+        show: true,
+        message: "Successfully signed in!",
+        type: "success",
+      });
     } catch (error) {
-      console.error("Registration failed:", error)
-      alert("Failed to register. Please try again.")
+      console.error("Registration failed:", error);
+
+      // Check if the error contains a response with a message
+      if (error.data && !error.data.success) {
+        setToast({
+          show: true,
+          message:
+            error.data.message || "Registration failed. Please try again.",
+          type: "error",
+        });
+      } else {
+        setToast({
+          show: true,
+          message: "Registration failed. Please try again.",
+          type: "error",
+        });
+      }
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   return (
     <header className="bg-[#008080] text-white fixed w-full z-20">
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
+
       <div className="w-full max-w-[1440px] mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/">
           <div className="flex items-center">
-            <img src={logo || "/placeholder.svg"} className="w-16 h-auto" alt="Gibi Info Logo" />
+            <img
+              src={logo || "/placeholder.svg"}
+              className="w-16 h-auto"
+              alt="Gibi Info Logo"
+            />
             <span className="text-3xl font-bold">Gibi Info</span>
           </div>
         </Link>
 
         {/* Mobile Menu Button */}
-        <button className="lg:hidden text-white focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="lg:hidden text-white focus:outline-none"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
           {menuOpen ? <MdClose size={30} /> : <MdMenu size={30} />}
         </button>
 
@@ -239,8 +359,8 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                 </Link>
                 <button
                   onClick={() => {
-                    handleLogout()
-                    setMenuOpen(false)
+                    handleLogout();
+                    setMenuOpen(false);
                   }}
                   className="flex items-center w-full py-3 text-white hover:bg-[#006060] px-2 rounded"
                 >
@@ -251,8 +371,8 @@ const Header = ({ menuOpen, setMenuOpen }) => {
             ) : (
               <button
                 onClick={() => {
-                  handleOpenSignUpModal()
-                  setMenuOpen(false)
+                  handleOpenSignUpModal();
+                  setMenuOpen(false);
                 }}
                 className="flex items-center w-full py-3 text-white hover:bg-[#006060] px-2 rounded justify-center"
               >
@@ -288,7 +408,9 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   id="profile-dropdown"
                   className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
                 >
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">{getUserEmail() || "User"}</div>
+                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                    {getUserEmail() || "User"}
+                  </div>
                   <Link
                     to="/my-exams"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -335,7 +457,10 @@ const Header = ({ menuOpen, setMenuOpen }) => {
               <h3 className="text-xl font-semibold">
                 {signUpStep === 1 ? "Sign Up / Sign In" : "Connect with Google"}
               </h3>
-              <button onClick={handleCloseSignUpModal} className="text-white hover:text-gray-200">
+              <button
+                onClick={handleCloseSignUpModal}
+                className="text-white hover:text-gray-200"
+              >
                 <FaTimes />
               </button>
             </div>
@@ -346,13 +471,19 @@ const Header = ({ menuOpen, setMenuOpen }) => {
               {signUpStep === 1 && (
                 <form onSubmit={handlePhoneSubmit}>
                   <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Enter Your Phone Number</h4>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                      Enter Your Phone Number
+                    </h4>
                     <p className="text-gray-600 mb-4">
-                      Please enter your phone number to continue with the sign up process.
+                      Please enter your phone number to continue with the sign
+                      up process.
                     </p>
 
                     <div className="mt-4">
-                      <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="phoneNumber"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Phone Number
                       </label>
                       <div className="relative">
@@ -370,7 +501,11 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                           required
                         />
                       </div>
-                      {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
+                      {phoneError && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {phoneError}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -395,8 +530,13 @@ const Header = ({ menuOpen, setMenuOpen }) => {
               {/* Step 2: Google Authentication */}
               {signUpStep === 2 && (
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Sign in with Google</h4>
-                  <p className="text-gray-600 mb-6">Please sign in with your Google account to complete the process.</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                    Sign in with Google
+                  </h4>
+                  <p className="text-gray-600 mb-6">
+                    Please sign in with your Google account to complete the
+                    process.
+                  </p>
 
                   <div className="flex justify-center mb-6">
                     <button
@@ -411,7 +551,11 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                         </div>
                       ) : (
                         <>
-                          <img src={googleImg || "/placeholder.svg"} className="w-5 h-5 mr-2" alt="Google logo" />
+                          <img
+                            src={googleImg || "/placeholder.svg"}
+                            className="w-5 h-5 mr-2"
+                            alt="Google logo"
+                          />
                           Sign in with Google
                         </>
                       )}
@@ -447,8 +591,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
         </div>
       )}
     </header>
-  )
-}
+  );
+};
 
-export default Header
-
+export default Header;

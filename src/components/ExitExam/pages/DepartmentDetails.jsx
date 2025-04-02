@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   FaGraduationCap,
   FaBook,
@@ -19,174 +19,245 @@ import {
   FaListAlt,
   FaBoxOpen,
   FaMoneyBillWave,
-} from "react-icons/fa"
+  FaExclamationCircle,
+} from "react-icons/fa";
 import {
   useGetDepartmentByIdQuery,
   useGetExitExamByDepartmentQuery,
   usePurchaseExamMutation,
   useGetOnlinePaymentUrlMutation,
   useGetExitExamInfoQuery,
-} from "../data/api/dataApi"
-import { signInWithGoogle } from "../../../../firebase"
-import googleImg from "../../../assets/google.png"
-import { useCreateUserMutation } from "../data/api/userApi"
-import { setToken } from "../data/slice/authSlice"
-import { useDispatch, useSelector } from "react-redux"
+} from "../data/api/dataApi";
+import { signInWithGoogle } from "../../../../firebase";
+import googleImg from "../../../assets/google.png";
+import { useCreateUserMutation } from "../data/api/userApi";
+import { setToken } from "../data/slice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+// Toast component
+const Toast = ({ message, type = "error", onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-20 right-4 z-50 max-w-md">
+      <div
+        className={`flex items-center p-4 mb-4 rounded-lg shadow-lg ${
+          type === "error"
+            ? "bg-red-50 text-red-800"
+            : "bg-green-50 text-green-800"
+        }`}
+      >
+        <div
+          className={`flex-shrink-0 ${
+            type === "error" ? "text-red-500" : "text-green-500"
+          }`}
+        >
+          {type === "error" ? (
+            <FaExclamationCircle size={20} />
+          ) : (
+            <FaCheckCircle size={20} />
+          )}
+        </div>
+        <div className="ml-3 text-sm font-medium">{message}</div>
+        <button
+          type="button"
+          onClick={onClose}
+          className={`ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 ${
+            type === "error"
+              ? "bg-red-100 text-red-500 hover:bg-red-200"
+              : "bg-green-100 text-green-500 hover:bg-green-200"
+          }`}
+        >
+          <span className="sr-only">Close</span>
+          <FaTimes />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const DepartmentDetails = () => {
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { id } = useParams()
-  const [activeTab, setActiveTab] = useState("additional")
-  const { data: departmentDetail, isLoading: deptLoading } = useGetDepartmentByIdQuery(id)
-  const { data: departmentExams, isLoading: examsLoading } = useGetExitExamByDepartmentQuery(id)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("additional");
+  const { data: departmentDetail, isLoading: deptLoading } =
+    useGetDepartmentByIdQuery(id);
+  const { data: departmentExams, isLoading: examsLoading } =
+    useGetExitExamByDepartmentQuery(id);
 
   // Get user Id from localStorage if available
   const getUserId = () => {
     try {
-      const userId = localStorage.getItem("userId")
-      return userId || null
+      const userId = localStorage.getItem("userId");
+      return userId || null;
     } catch (error) {
-      console.error("Error getting user Id:", error)
-      return null
+      console.error("Error getting user Id:", error);
+      return null;
     }
-  }
-  const userId = getUserId()
+  };
+  const userId = getUserId();
 
   // State to store exam IDs and their corresponding info
-  const [selectedExamId, setSelectedExamId] = useState(null)
-  const { data: examInfo, isLoading: examInfoLoading } = useGetExitExamInfoQuery(id)
-  console.log('kkkkk',examInfo)
+  const [selectedExamId, setSelectedExamId] = useState(null);
+  const { data: examInfo, isLoading: examInfoLoading } =
+    useGetExitExamInfoQuery(id);
+  console.log("kkkkk", examInfo);
 
   // State to store all exam info
-  const [examsWithInfo, setExamsWithInfo] = useState([])
-  const [selectedPackage, setSelectedPackage] = useState(null)
+  const [examsWithInfo, setExamsWithInfo] = useState([]);
+  const [selectedPackage, setSelectedPackage] = useState(null);
 
-  const [purchaseExam] = usePurchaseExamMutation()
-  const [createUser] = useCreateUserMutation()
-  const [getOnlinePaymentUrl] = useGetOnlinePaymentUrlMutation()
+  const [purchaseExam] = usePurchaseExamMutation();
+  const [createUser] = useCreateUserMutation();
+  const [getOnlinePaymentUrl] = useGetOnlinePaymentUrlMutation();
 
   // Get auth state from Redux
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   // Purchase modal states
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
-  const [phoneNumber, setPhoneNumber] = useState("")
-  const [phoneError, setPhoneError] = useState("")
-  const [purchaseStep, setPurchaseStep] = useState(1) // 1: Phone, 2: Google Auth, 3: Payment Method
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [purchaseComplete, setPurchaseComplete] = useState(false)
-  const [userRegistered, setUserRegistered] = useState(false)
-  const [userData, setUserData] = useState(null)
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [purchaseStep, setPurchaseStep] = useState(1); // 1: Phone, 2: Google Auth, 3: Payment Method
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [purchaseComplete, setPurchaseComplete] = useState(false);
+  const [userRegistered, setUserRegistered] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   // Fetch exam info for each exam when departmentExams changes
   useEffect(() => {
     if (departmentExams?.data && departmentExams.data.length > 0) {
       // Use real exam data from the API
-      setExamsWithInfo(departmentExams.data)
+      setExamsWithInfo(departmentExams.data);
     }
-  }, [departmentExams])
+  }, [departmentExams]);
 
   // Handle purchase button click for a package
   const handlePurchaseClick = (packageData) => {
-    setSelectedPackage(packageData)
+    setSelectedPackage(packageData);
 
     // If user is already authenticated, go directly to payment selection
     if (isAuthenticated) {
-      setIsPurchaseModalOpen(true)
-      setPurchaseStep(3)
+      setIsPurchaseModalOpen(true);
+      setPurchaseStep(3);
 
       // Get email from localStorage
-      const email = localStorage.getItem("userEmail")
+      const email = localStorage.getItem("userEmail");
 
       setUserData({
         email,
         phoneNumber: "",
         user: user,
-      })
+      });
     } else {
       // Otherwise start from the beginning
-      setIsPurchaseModalOpen(true)
-      setPurchaseStep(1)
-      setPhoneNumber("")
-      setPhoneError("")
+      setIsPurchaseModalOpen(true);
+      setPurchaseStep(1);
+      setPhoneNumber("");
+      setPhoneError("");
     }
 
-    setPurchaseComplete(false)
-    setUserRegistered(false)
-  }
+    setPurchaseComplete(false);
+    setUserRegistered(false);
+  };
 
   // Close the purchase modal
   const handleCloseModal = () => {
-    setIsPurchaseModalOpen(false)
-    setSelectedPackage(null)
-    setPurchaseStep(1)
-    setUserRegistered(false)
-  }
+    setIsPurchaseModalOpen(false);
+    setSelectedPackage(null);
+    setPurchaseStep(1);
+    setUserRegistered(false);
+  };
 
   // Validate phone number
   const validatePhoneNumber = (number) => {
     // Basic validation - adjust as needed for your requirements
-    const phoneRegex = /^\+?[0-9]{10,15}$/
-    return phoneRegex.test(number)
-  }
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+    return phoneRegex.test(number);
+  };
 
   // Handle phone number submission
   const handlePhoneSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setPhoneError("Please enter a valid phone number")
-      return
+      setPhoneError("Please enter a valid phone number");
+      return;
     }
 
-    setPhoneError("")
-    setPurchaseStep(2) // Move to Google auth step
-  }
+    setPhoneError("");
+    setPurchaseStep(2); // Move to Google auth step
+  };
 
   // Handle Google login
   const handleGoogleLogin = async () => {
     try {
-      setIsProcessing(true)
-      const user = await signInWithGoogle()
-      const { email } = user
+      setIsProcessing(true);
+      const user = await signInWithGoogle();
+      const { email } = user;
 
       // Store email in localStorage for profile display
-      localStorage.setItem("userEmail", email)
+      localStorage.setItem("userEmail", email);
 
       // Register user with API
-      const register = await createUser({ email, phoneNumber }).unwrap()
+      const response = await createUser({ email, phoneNumber }).unwrap();
+      console.log("success response", response);
+
+      if (!response.success) {
+        // Show error toast
+        setToast({
+          show: true,
+          message:
+            response.message ||
+            "Your phone number is already registered with different email address!",
+          type: "error",
+        });
+        setPurchaseStep(1);
+        return;
+      }
 
       // Store token in Redux using the existing slice pattern
-      dispatch(setToken(register))
+      dispatch(setToken(response));
 
       // Store user data for later use
       setUserData({
         email,
         phoneNumber,
         userId: userId,
-      })
+      });
 
       // Ensure we move to payment method selection
-      setUserRegistered(true)
+      setUserRegistered(true);
 
       // Force a small delay to ensure state updates properly
       setTimeout(() => {
-        setPurchaseStep(3)
-      }, 100)
+        setPurchaseStep(3);
+      }, 100);
     } catch (error) {
-      console.error("Registration failed:", error)
-      alert("Failed to register. Please try again.")
+      console.error("Registration failed:", error);
+      alert("Failed to register. Please try again.");
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   // Handle bank transfer selection
   const handleBankTransfer = () => {
     // Get the first exam ID from the package's exitExam array
-    const firstExam = selectedPackage?.exitExam?.[0] || null
-    const firstExamId = firstExam?._id || null
+    const firstExam = selectedPackage?.exitExam?.[0] || null;
+    const firstExamId = firstExam?._id || null;
 
     // Navigate to bank information page with package details
     navigate("/bank-information", {
@@ -198,43 +269,45 @@ const DepartmentDetails = () => {
         userId: userId, // Using userId directly
         departmentId: id,
       },
-    })
-    setIsPurchaseModalOpen(false)
-  }
+    });
+    setIsPurchaseModalOpen(false);
+  };
 
   // Handle online payment selection
   const handleOnlinePayment = async () => {
     try {
-      setIsProcessing(true)
+      setIsProcessing(true);
 
       // Request online payment checkout URL from API
       const response = await getOnlinePaymentUrl({
         paymentType: "Online",
         package: selectedPackage?._id,
         type: "Semister",
-      }).unwrap()
+      }).unwrap();
 
-      console.log('Payment response',response?.data.data)
+      console.log("Payment response", response?.data.data);
 
       // Redirect to payment gateway if URL is available
       if (response && response?.data.data.checkout_url) {
-        window.location.href = response?.data.data.checkout_url
+        window.location.href = response?.data.data.checkout_url;
       } else {
-        throw new Error("No checkout URL received")
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error("Failed to get payment URL:", error)
-      alert("Failed to initiate online payment. Please try again or use bank transfer.")
+      console.error("Failed to get payment URL:", error);
+      alert(
+        "Failed to initiate online payment. Please try again or use bank transfer."
+      );
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   // Format price to display with 2 decimal places
   const formatPrice = (price) => {
-    if (!price) return "N/A"
-    return typeof price === "number" ? price.toFixed(2) : price
-  }
+    if (!price) return "N/A";
+    return typeof price === "number" ? price.toFixed(2) : price;
+  };
 
   if (deptLoading || examInfoLoading) {
     return (
@@ -244,7 +317,7 @@ const DepartmentDetails = () => {
           <p className="text-gray-600">Loading department information...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -254,7 +327,9 @@ const DepartmentDetails = () => {
         <div className="relative rounded-xl overflow-hidden mb-12">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-800 to-teal-600 opacity-90"></div>
           <div className="relative z-10 px-8 py-12 text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{departmentDetail?.data.name || "Department"}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              {departmentDetail?.data.name || "Department"}
+            </h1>
             <p className="text-xl max-w-3xl opacity-90 mb-6">
               {departmentDetail?.data.description ||
                 "This department offers comprehensive education and training to prepare students for successful careers."}
@@ -278,9 +353,12 @@ const DepartmentDetails = () => {
 
         {/* Sample Exams Section - FIRST */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Sample Exams</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            Sample Exams
+          </h2>
 
-          {examsWithInfo.length > 0 && examsWithInfo.filter((exam) => exam.isSample).length > 0 ? (
+          {examsWithInfo.length > 0 &&
+          examsWithInfo.filter((exam) => exam.isSample).length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {examsWithInfo
                 .filter((exam) => exam.isSample)
@@ -291,7 +369,9 @@ const DepartmentDetails = () => {
                   >
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-xl font-bold text-gray-900">{exam.title}</h3>
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {exam.title}
+                        </h3>
                         <div className="bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center">
                           <FaUnlock className="mr-1 h-3 w-3" />
                           <span>Free Sample</span>
@@ -299,7 +379,8 @@ const DepartmentDetails = () => {
                       </div>
 
                       <p className="text-gray-600 mb-4">
-                        {exam.description || "Sample assessment to test your knowledge."}
+                        {exam.description ||
+                          "Sample assessment to test your knowledge."}
                       </p>
 
                       <div className="flex flex-wrap gap-3 mb-6">
@@ -327,28 +408,39 @@ const DepartmentDetails = () => {
           ) : (
             <div className="text-center py-8 bg-white rounded-lg shadow-md">
               <FaBook className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Sample Exams Available</h3>
-              <p className="text-gray-600">There are currently no sample exams available for this department.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Sample Exams Available
+              </h3>
+              <p className="text-gray-600">
+                There are currently no sample exams available for this
+                department.
+              </p>
             </div>
           )}
         </div>
 
         {/* Exam Packages Section - SECOND */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Exam Packages</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            Exam Packages
+          </h2>
 
           {examInfo?.data ? (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden border-t-4 border-purple-600 hover:shadow-xl transition-all duration-300">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-bold text-gray-900">{examInfo.data.title}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    {examInfo.data.title}
+                  </h3>
                   <div className="bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center">
                     <FaBoxOpen className="mr-1.5 h-3.5 w-3.5" />
                     <span>Premium Package</span>
                   </div>
                 </div>
 
-                <p className="text-gray-600 mb-6">{examInfo.data.description}</p>
+                <p className="text-gray-600 mb-6">
+                  {examInfo.data.description}
+                </p>
 
                 {/* Package details */}
                 <div className="mb-6 bg-gray-50 p-4 rounded-lg">
@@ -357,15 +449,20 @@ const DepartmentDetails = () => {
                     Exams :
                   </h4>
 
-                  {examInfo.data.exitExam && examInfo.data.exitExam.length > 0 ? (
+                  {examInfo.data.exitExam &&
+                  examInfo.data.exitExam.length > 0 ? (
                     <ul className="space-y-4 mb-4">
                       {examInfo.data.exitExam.map((exam, index) => (
                         <li key={exam._id} className="flex items-start">
                           <div className="flex-shrink-0 h-5 w-5 rounded-full bg-purple-100 flex items-center justify-center mr-2 mt-0.5">
-                            <span className="text-purple-600 text-xs font-medium">{index + 1}</span>
+                            <span className="text-purple-600 text-xs font-medium">
+                              {index + 1}
+                            </span>
                           </div>
                           <div>
-                            <span className="text-gray-700 font-medium">{exam.title}</span>
+                            <span className="text-gray-700 font-medium">
+                              {exam.title}
+                            </span>
                             <p className="text-gray-600 text-sm mt-1">
                               {exam.description || ""}
                             </p>
@@ -376,7 +473,10 @@ const DepartmentDetails = () => {
                               </span>
                               <span className="bg-gray-100 px-2 py-0.5 rounded-full text-xs text-gray-600 flex items-center">
                                 <FaBook className="mr-1 h-2.5 w-2.5" />
-                                {exam.questions ? exam.questions.length : 100} questions
+                                {exam.questions
+                                  ? exam.questions.length
+                                  : 100}{" "}
+                                questions
                               </span>
                             </div>
                           </div>
@@ -384,13 +484,17 @@ const DepartmentDetails = () => {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-gray-500 italic mb-4">No exams specified in this package.</p>
+                    <p className="text-gray-500 italic mb-4">
+                      No exams specified in this package.
+                    </p>
                   )}
 
                   <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                     <div className="flex items-center">
                       <FaMoneyBillWave className="text-green-600 mr-2" />
-                      <span className="font-bold text-lg text-gray-900">{formatPrice(examInfo.data.price)} ETB</span>
+                      <span className="font-bold text-lg text-gray-900">
+                        {formatPrice(examInfo.data.price)} ETB
+                      </span>
                     </div>
 
                     <button
@@ -410,8 +514,12 @@ const DepartmentDetails = () => {
                       <FaGraduationCap className="text-blue-600 h-5 w-5" />
                     </div>
                     <div>
-                      <h5 className="font-medium text-blue-800">Comprehensive Coverage</h5>
-                      <p className="text-sm text-blue-600">Complete preparation for your exit exams</p>
+                      <h5 className="font-medium text-blue-800">
+                        Comprehensive Coverage
+                      </h5>
+                      <p className="text-sm text-blue-600">
+                        Complete preparation for your exit exams
+                      </p>
                     </div>
                   </div>
 
@@ -420,8 +528,12 @@ const DepartmentDetails = () => {
                       <FaShieldAlt className="text-green-600 h-5 w-5" />
                     </div>
                     <div>
-                      <h5 className="font-medium text-green-800">Valid for 1 Year</h5>
-                      <p className="text-sm text-green-600">Full access to all included exams</p>
+                      <h5 className="font-medium text-green-800">
+                        Valid for 1 Year
+                      </h5>
+                      <p className="text-sm text-green-600">
+                        Full access to all included exams
+                      </p>
                     </div>
                   </div>
 
@@ -430,8 +542,12 @@ const DepartmentDetails = () => {
                       <FaChalkboardTeacher className="text-purple-600 h-5 w-5" />
                     </div>
                     <div>
-                      <h5 className="font-medium text-purple-800">Expert Explanations</h5>
-                      <p className="text-sm text-purple-600">Detailed AI-powered explanations</p>
+                      <h5 className="font-medium text-purple-800">
+                        Expert Explanations
+                      </h5>
+                      <p className="text-sm text-purple-600">
+                        Detailed AI-powered explanations
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -440,8 +556,13 @@ const DepartmentDetails = () => {
           ) : (
             <div className="text-center py-8 bg-white rounded-lg shadow-md">
               <FaBook className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Exam Packages Available</h3>
-              <p className="text-gray-600 mb-6">There are currently no exam packages available for this department.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Exam Packages Available
+              </h3>
+              <p className="text-gray-600 mb-6">
+                There are currently no exam packages available for this
+                department.
+              </p>
             </div>
           )}
         </div>
@@ -477,7 +598,9 @@ const DepartmentDetails = () => {
           {/* Additional Information Tab - with courses */}
           {activeTab === "additional" && (
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Department Courses</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Department Courses
+              </h2>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <p>No course available for now. Coming Soon...</p>
@@ -488,34 +611,53 @@ const DepartmentDetails = () => {
           {/* Curriculum Tab */}
           {activeTab === "curriculum" && (
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Curriculum</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Curriculum
+              </h2>
               <div className="space-y-8">
                 {departmentDetail?.data?.yearlySubjects ? (
-                  departmentDetail.data.yearlySubjects.map((yearData, index) => (
-                    <div key={index} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                      <h3 className="text-xl font-semibold text-teal-700 mb-4">{yearData.year}</h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {yearData.subjects.map((subject, subIndex) => (
-                          <div key={subIndex} className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                                <span className="text-teal-600 font-semibold">{subIndex + 1}</span>
-                              </div>
-                              <div className="ml-4">
-                                <h4 className="text-lg font-medium text-gray-900">{subject}</h4>
+                  departmentDetail.data.yearlySubjects.map(
+                    (yearData, index) => (
+                      <div
+                        key={index}
+                        className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
+                      >
+                        <h3 className="text-xl font-semibold text-teal-700 mb-4">
+                          {yearData.year}
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {yearData.subjects.map((subject, subIndex) => (
+                            <div
+                              key={subIndex}
+                              className="bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
+                                  <span className="text-teal-600 font-semibold">
+                                    {subIndex + 1}
+                                  </span>
+                                </div>
+                                <div className="ml-4">
+                                  <h4 className="text-lg font-medium text-gray-900">
+                                    {subject}
+                                  </h4>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <div className="text-center py-8">
                     <FaBook className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Curriculum Data Available</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      No Curriculum Data Available
+                    </h3>
                     <p className="text-gray-600">
-                      The curriculum information for this department is currently being updated.
+                      The curriculum information for this department is
+                      currently being updated.
                     </p>
                   </div>
                 )}
@@ -532,9 +674,14 @@ const DepartmentDetails = () => {
             {/* Modal Header */}
             <div className="bg-purple-600 text-white px-6 py-4 flex justify-between items-center">
               <h3 className="text-xl font-semibold">
-                {purchaseComplete ? "Purchase Complete" : "Purchase Exam Package"}
+                {purchaseComplete
+                  ? "Purchase Complete"
+                  : "Purchase Exam Package"}
               </h3>
-              <button onClick={handleCloseModal} className="text-white hover:text-purple-100">
+              <button
+                onClick={handleCloseModal}
+                className="text-white hover:text-purple-100"
+              >
                 <FaTimes />
               </button>
             </div>
@@ -551,12 +698,20 @@ const DepartmentDetails = () => {
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
                     </svg>
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">Thank You for Your Purchase!</h4>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                    Thank You for Your Purchase!
+                  </h4>
                   <p className="text-gray-600 mb-6">
-                    You now have access to {selectedPackage?.title}. You can access your exams from your dashboard.
+                    You now have access to {selectedPackage?.title}. You can
+                    access your exams from your dashboard.
                   </p>
                   <div className="flex justify-center space-x-4">
                     <Link
@@ -579,14 +734,30 @@ const DepartmentDetails = () => {
                   {purchaseStep === 1 && (
                     <form onSubmit={handlePhoneSubmit}>
                       <div className="mb-6">
-                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Enter Your Phone Number</h4>
+                        {toast.show && (
+                          <Toast
+                            message={toast.message}
+                            type={toast.type}
+                            onClose={() => setToast({ ...toast, show: false })}
+                          />
+                        )}
+                        <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                          Enter Your Phone Number
+                        </h4>
                         <p className="text-gray-600 mb-4">
-                          Please enter your phone number to continue with the purchase of{" "}
-                          <span className="font-medium">{selectedPackage?.title}</span>.
+                          Please enter your phone number to continue with the
+                          purchase of{" "}
+                          <span className="font-medium">
+                            {selectedPackage?.title}
+                          </span>
+                          .
                         </p>
 
                         <div className="mt-4">
-                          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                          <label
+                            htmlFor="phoneNumber"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
                             Phone Number
                           </label>
                           <div className="relative">
@@ -604,7 +775,11 @@ const DepartmentDetails = () => {
                               required
                             />
                           </div>
-                          {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
+                          {phoneError && (
+                            <p className="mt-2 text-sm text-red-600">
+                              {phoneError}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -629,9 +804,12 @@ const DepartmentDetails = () => {
                   {/* Step 2: Google Authentication */}
                   {purchaseStep === 2 && (
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Sign in with Google</h4>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                        Sign in with Google
+                      </h4>
                       <p className="text-gray-600 mb-6">
-                        Please sign in with your Google account to continue your purchase.
+                        Please sign in with your Google account to continue your
+                        purchase.
                       </p>
 
                       <div className="flex justify-center mb-6">
@@ -647,7 +825,11 @@ const DepartmentDetails = () => {
                             </div>
                           ) : (
                             <>
-                              <img src={googleImg || "/placeholder.svg"} className="w-5 h-5 mr-2" alt="Google logo" />
+                              <img
+                                src={googleImg || "/placeholder.svg"}
+                                className="w-5 h-5 mr-2"
+                                alt="Google logo"
+                              />
                               Sign in with Google
                             </>
                           )}
@@ -684,9 +866,12 @@ const DepartmentDetails = () => {
                   {/* Step 3: Payment Method Selection */}
                   {purchaseStep === 3 && (
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4">Select Payment Method</h4>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                        Select Payment Method
+                      </h4>
                       <p className="text-gray-600 mb-6">
-                        Choose how you would like to pay for {selectedPackage?.title}.
+                        Choose how you would like to pay for{" "}
+                        {selectedPackage?.title}.
                       </p>
 
                       <div className="space-y-4 mb-6">
@@ -700,8 +885,12 @@ const DepartmentDetails = () => {
                               <FaUniversity className="h-6 w-6 text-blue-600" />
                             </div>
                             <div className="ml-4">
-                              <h5 className="font-medium text-gray-900">Bank Transfer</h5>
-                              <p className="text-sm text-gray-500">Pay via bank deposit or transfer</p>
+                              <h5 className="font-medium text-gray-900">
+                                Bank Transfer
+                              </h5>
+                              <p className="text-sm text-gray-500">
+                                Pay via bank deposit or transfer
+                              </p>
                             </div>
                           </div>
                           <FaArrowRight className="h-4 w-4 text-gray-400" />
@@ -717,8 +906,12 @@ const DepartmentDetails = () => {
                               <FaCreditCard className="h-6 w-6 text-green-600" />
                             </div>
                             <div className="ml-4">
-                              <h5 className="font-medium text-gray-900">Online Payment</h5>
-                              <p className="text-sm text-gray-500">Pay securely Online</p>
+                              <h5 className="font-medium text-gray-900">
+                                Online Payment
+                              </h5>
+                              <p className="text-sm text-gray-500">
+                                Pay securely Online
+                              </p>
                             </div>
                           </div>
                           <FaArrowRight className="h-4 w-4 text-gray-400" />
@@ -754,8 +947,7 @@ const DepartmentDetails = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default DepartmentDetails
-
+export default DepartmentDetails;
