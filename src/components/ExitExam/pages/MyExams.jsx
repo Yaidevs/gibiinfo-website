@@ -20,6 +20,7 @@ const MyExams = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { data: myExamsData, isLoading, error } = useGetMyExitExamsQuery();
+  console.log('EXAMS DATA ...',myExamsData)
 
   const packages = myExamsData?.data || [];
 
@@ -86,6 +87,9 @@ const MyExams = () => {
             <p className="text-gray-600 mb-6">
               You haven't purchased any exam packages yet.
             </p>
+            <p className="text-gray-600 mb-6">
+              If you purchased and not approved yet ; Contact us : +251948952757
+            </p>
             <Link
               to="/departments"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700"
@@ -95,9 +99,9 @@ const MyExams = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            {packages.map((pkg) => (
+            {packages.map((pkg,index) => (
               <div
-                key={pkg._id}
+                key={index}
                 className="bg-white rounded-xl shadow-lg overflow-hidden border-teal-600"
               >
                 <div className="bg-gradient-to-r from-teal-800 to-teal-600 px-6 py-4">
@@ -131,13 +135,13 @@ const MyExams = () => {
 
                           return (
                             <div
-                              key={examId}
+                              key={index}
                               className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                             >
                               <div className="p-5">
                                 <div className="flex justify-between items-start mb-3">
                                   <h4 className="text-lg font-semibold text-gray-900">
-                                    Exit Exam
+                                    {exam.title}
                                   </h4>
                                   <div className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center">
                                     <FaCheckCircle className="mr-1 h-3 w-3" />

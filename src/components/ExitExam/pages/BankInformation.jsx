@@ -125,14 +125,14 @@ const BankInformation = () => {
       setSubmitSuccess(true)
 
       // Redirect to success page or exam page after a delay
-      setTimeout(() => {
-        navigate(`/my-exams`)
-      }, 3000)
+      // setTimeout(() => {
+      //   navigate(`/my-exams`)
+      // }, 10000)
     } catch (error) {
       console.error("Verification failed:", error)
       setError("Failed to verify your payment. Please try again or contact support.")
     } finally {
-      setIsSubmitting(false)
+      // setIsSubmitting(false)
     }
   }
 
@@ -168,12 +168,12 @@ const BankInformation = () => {
                 <FaCheck className="h-8 w-8 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Verification Submitted!</h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-gray-600 mb-6 w-100 text-center">
                 We've received your payment verification. Your access to the exam package will be activated once the
-                payment is confirmed.
+                payment is confirmed and then you can access it in your my exams pages. Wait 5 minutes please.
               </p>
-              <p className="text-gray-600 mb-6">You'll be redirected to your exams page in a moment...</p>
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div>
+              <p className="text-gray-600 mb-6">If your package is not released contact us : +251948952757</p>
+              {/* <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto"></div> */}
             </div>
           ) : (
             <div className="p-6">

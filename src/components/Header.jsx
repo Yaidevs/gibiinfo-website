@@ -102,7 +102,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Get first letter of email for profile circle
   const getProfileInitial = () => {
     const email = getUserEmail();
-
     if (email) {
       return email.charAt(0).toUpperCase();
     }
@@ -211,6 +210,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
 
       // Register user with API
       const response = await createUser({ email, phoneNumber }).unwrap();
+      console.log('respppppp',response)
 
       // Check if registration was successful
       if (!response.success) {
@@ -266,7 +266,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     <header className="bg-[#008080] text-white fixed w-full z-20">
       {toast.show && (
         <Toast
-          message="This phone number is already registered with different email address!"
+          message={toast.message}
           type={toast.type}
           onClose={() => setToast({ ...toast, show: false })}
         />

@@ -386,11 +386,11 @@ const DepartmentDetails = () => {
                       <div className="flex flex-wrap gap-3 mb-6">
                         <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                           <FaRegClock className="mr-1 h-3 w-3" />
-                          {exam.timeLimit || 30} mins
+                          {exam.timeLimit || 120} mins
                         </div>
                         <div className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700 flex items-center">
                           <FaBook className="mr-1 h-3 w-3" />
-                          {exam.questionCount || 25} questions
+                          {exam.questionCount || 50} questions
                         </div>
                       </div>
 
