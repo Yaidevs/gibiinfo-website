@@ -221,7 +221,7 @@ const DepartmentDetails = () => {
           show: true,
           message:
             response.message ||
-            "Your phone number is already registered with different email address!",
+            "This phone number is already registered with different email address!",
           type: "error",
         });
         setPurchaseStep(1);
@@ -736,7 +736,7 @@ const DepartmentDetails = () => {
                       <div className="mb-6">
                         {toast.show && (
                           <Toast
-                            message={toast.message}
+                            message="This phone number is already registered with different email address!"
                             type={toast.type}
                             onClose={() => setToast({ ...toast, show: false })}
                           />

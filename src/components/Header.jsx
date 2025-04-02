@@ -219,7 +219,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
           show: true,
           message:
             response.message ||
-            "Your phone number is already registered with different email address!",
+            "This phone number is already registered with different email address!",
           type: "error",
         });
         // Reset to phone number step
@@ -266,7 +266,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     <header className="bg-[#008080] text-white fixed w-full z-20">
       {toast.show && (
         <Toast
-          message={toast.message}
+          message="This phone number is already registered with different email address!"
           type={toast.type}
           onClose={() => setToast({ ...toast, show: false })}
         />

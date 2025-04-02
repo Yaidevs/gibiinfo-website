@@ -1,76 +1,124 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useGetExitExamQuestionsQuery } from "../data/api/dataApi";
+import { useState, useEffect } from "react"
+import { useNavigate, useParams, Link } from "react-router-dom"
+import { useGetExitExamQuestionsQuery } from "../data/api/dataApi"
+import { useValidateTokenQuery } from "../data/api/userApi"
+import { FaExclamationTriangle, FaLock } from "react-icons/fa"
 
 export default function ExamGenerator() {
-  const { id } = useParams();
-  const { exam } = useGetExitExamQuestionsQuery(id);
-  console.log("EXXXX", exam?.data);
+  const { id } = useParams()
+  const { data: exam } = useGetExitExamQuestionsQuery(id)
+  const { data: tokenValidation, isLoading: validationLoading } = useValidateTokenQuery()
+  console.log('token Valid',tokenValidation)
 
-  useEffect(() => {
-    console.log("Exam Data Updated:", exam);
-  }, [exam]);
-
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     numQuestions: 20,
-    timeLimit: 2,
-  });
+    timeLimit: 30,
+  })
+  const [validationError, setValidationError] = useState(false)
 
-  // const departmentNames = {
-  //   accounting: "Accounting",
-  //   management: "Management",
-  //   marketing: "Marketing",
-  //   economics: "Economics",
-  //   finance: "Finance",
-  //   "information-systems": "Information Systems",
-  // }
+  useEffect(() => {
+    if (tokenValidation && tokenValidation.success === false) {
+      setValidationError(true)
+    }
+  }, [tokenValidation])
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setFormData({
       ...formData,
       [name]: Number.parseInt(value),
-    });
-  };
+    })
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+
+    // Check token validation before proceeding
+    if (tokenValidation && tokenValidation.success === false) {
+      setValidationError(true)
+      return
+    }
+
+    setLoading(true)
 
     // Simulate loading
     setTimeout(() => {
-      setLoading(false);
+      setLoading(false)
       navigate(`/exam/${id}`, {
         state: {
           numQuestions: formData.numQuestions,
           timeLimit: formData.timeLimit,
         },
-      });
-    }, 1500);
-  };
+      })
+    }, 1500)
+  }
+
+  // If token validation failed, show error message
+  if (validationError) {
+    return (
+      <div className="bg-gray-50 min-h-screen pt-[80px] py-12">
+        <div className="bg-white p-8 rounded-xl shadow-md max-w-md md:max-w-2xl mt-[44px] mx-auto overflow-hidden">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <FaLock className="text-red-500 text-3xl" />
+              </div>
+            </div>
+            <h1 className="text-2xl text-gray-900 font-bold">Authentication Required</h1>
+            <p className="text-gray-600 mt-2">Your session has expired or you don't have access to this exam.</p>
+          </div>
+
+          <div className="bg-red-50 p-4 rounded-lg mb-6 flex items-start">
+            <FaExclamationTriangle className="text-red-500 mt-1 mr-3 flex-shrink-0" />
+            <p className="text-red-700 text-sm">Please sign in again or purchase this exam package to continue.</p>
+          </div>
+
+          <div className="flex space-x-4">
+            <Link
+              to="/"
+              className="flex-1 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-500 hover:bg-gray-600 text-center"
+            >
+              Back to Home
+            </Link>
+            <Link
+              to="/departments"
+              className="flex-1 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 text-center"
+            >
+              Browse Exams
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show loading state while validating token
+  if (validationLoading) {
+    return (
+      <div className="bg-gray-50 min-h-screen pt-[80px] py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Validating your access...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pt-[80px] py-12">
       <div className="bg-white p-8 rounded-xl shadow-md max-w-md md:max-w-2xl mt-[44px] mx-auto overflow-hidden">
         <div className="text-center mb-8">
-          <h1 className="text-2xl text-gray-900 font-bold">
-            Generate Exit Exam
-          </h1>
-          <p className="text-gray-600 text-sm mt-2">
-            Enter the number of questios and time limit you want
-          </p>
+          <h1 className="text-2xl text-gray-900 font-bold">Generate Exit Exam</h1>
+          <p className="text-gray-600 text-sm mt-2">Enter the number of questions and time limit you want</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label
-              htmlFor="numQuestions"
-              className="text-gray-700 text-sm block font-medium mb-1"
-            >
+            <label htmlFor="numQuestions" className="text-gray-700 text-sm block font-medium mb-1">
               Number of Questions
             </label>
             <input
@@ -92,10 +140,7 @@ export default function ExamGenerator() {
           </div>
 
           <div className="mb-8">
-            <label
-              htmlFor="timeLimit"
-              className="text-gray-700 text-sm block font-medium mb-1"
-            >
+            <label htmlFor="timeLimit" className="text-gray-700 text-sm block font-medium mb-1">
               Time Limit (minutes)
             </label>
             <input
@@ -116,20 +161,10 @@ export default function ExamGenerator() {
             </div>
           </div>
 
-          {/* <div className="bg-blue-50 p-4 rounded-lg mb-6">
-            <h3 className="text-blue-800 font-medium mb-2">Exam Summary</h3>
-            <ul className="text-blue-700 text-sm space-y-1">
-              <li>Department: {departmentNames[department]}</li>
-              <li>Number of Questions: {formData.numQuestions}</li>
-              <li>Time Limit: {formData.timeLimit} minutes</li>
-              <li>Question Types: Multiple Choice</li>
-            </ul>
-          </div> */}
-
           <button
             type="submit"
-            className={`w-full >flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#008080] ${
-              loading ? "opacity-75 cursor-not-allowed" : ""
+            className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#008080] ${
+              loading ? "opacity-75 cursor-not-allowed" : "hover:bg-[#006666]"
             }`}
             disabled={loading}
           >
@@ -141,14 +176,7 @@ export default function ExamGenerator() {
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path
                     className="opacity-75"
                     fill="currentColor"
@@ -164,5 +192,6 @@ export default function ExamGenerator() {
         </form>
       </div>
     </div>
-  );
+  )
 }
+

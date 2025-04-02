@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getTokenFromCookies } from "../../../../shared/getToken.mjs";
-import { USER_URL } from "../../../../constants";
+import { BASE_URL, USER_URL } from "../../../../constants";
+
 
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: USER_URL,
+    baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies();
       if (token) {
