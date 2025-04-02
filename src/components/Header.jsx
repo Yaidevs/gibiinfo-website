@@ -211,7 +211,6 @@ const Header = ({ menuOpen, setMenuOpen }) => {
 
       // Register user with API
       const response = await createUser({ email, phoneNumber }).unwrap();
-      
 
       // Check if registration was successful
       if (!response.success) {
@@ -224,7 +223,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
           type: "error",
         });
         // Reset to phone number step
-        setSignUpStep(1);
+        handleCloseSignUpModal();
         return;
       }
 
