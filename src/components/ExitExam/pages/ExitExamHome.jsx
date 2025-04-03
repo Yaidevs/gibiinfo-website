@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import ui from "../../../assets/exit-exam-ui.png"
 
 export default function ExitExamHome() {
   return (
@@ -71,7 +72,7 @@ export default function ExitExamHome() {
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Exam Interface Guide</h3>
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
             <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%20from%202025-03-17%2010-35-18-cAsed4oCqZeq5PBTDq94RX1VjMErE7.png"
+              src={ui}
               alt="Exam Interface Example"
               className="w-full rounded-md"
             />
