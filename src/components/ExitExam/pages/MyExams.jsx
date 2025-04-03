@@ -20,7 +20,7 @@ const MyExams = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { data: myExamsData, isLoading, error } = useGetMyExitExamsQuery();
-  console.log('EXAMS DATA ...',myExamsData)
+  // console.log('EXAMS DATA ...',myExamsData)
 
   const packages = myExamsData?.data || [];
 

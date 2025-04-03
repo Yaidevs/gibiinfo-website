@@ -102,7 +102,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     if (email) {
       return email.charAt(0).toUpperCase();
     }
-    return "U"; // Default fallback
+    return null; // Default fallback
   };
 
   // Handle logout

@@ -120,7 +120,7 @@ const BankInformation = () => {
 
       // Submit payment verification request
       const response = await subscribeManual(paymentData).unwrap()
-      console.log("Payment verification response:", response)
+      // console.log("Payment verification response:", response)
 
       setSubmitSuccess(true)
 
@@ -129,7 +129,7 @@ const BankInformation = () => {
       //   navigate(`/my-exams`)
       // }, 10000)
     } catch (error) {
-      console.error("Verification failed:", error)
+      // console.error("Verification failed:", error)
       setError("Failed to verify your payment. Please try again or contact support.")
     } finally {
       // setIsSubmitting(false)

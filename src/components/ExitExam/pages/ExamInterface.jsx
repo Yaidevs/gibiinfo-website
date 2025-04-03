@@ -265,7 +265,7 @@ export default function ExamInterface() {
             try {
               return <InlineMath key={index} math={mathExpression} />;
             } catch (error) {
-              console.error("Error rendering math:", error);
+              // console.error("Error rendering math:", error);
               return <span key={index}>{part}</span>;
             }
           } else {

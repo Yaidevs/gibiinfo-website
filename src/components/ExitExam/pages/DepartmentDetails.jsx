@@ -86,7 +86,7 @@ const DepartmentDetails = () => {
       const userId = localStorage.getItem("userId")
       return userId || null
     } catch (error) {
-      console.error("Error getting user Id:", error)
+      // console.error("Error getting user Id:", error)
       return null
     }
   }
@@ -95,6 +95,7 @@ const DepartmentDetails = () => {
   // State to store exam IDs and their corresponding info
   const [selectedExamId, setSelectedExamId] = useState(null)
   const { data: examInfo, isLoading: examInfoLoading } = useGetExitExamInfoQuery(id)
+  // console.log('EXAM IN PACKAGE',examInfo)
 
   // State to store all exam info
   const [examsWithInfo, setExamsWithInfo] = useState([])
@@ -219,7 +220,7 @@ const DepartmentDetails = () => {
         setPurchaseStep(3)
       }, 100)
     } catch (error) {
-      console.error("Registration failed:", error)
+      // console.error("Registration failed:", error)
 
       // Show error toast
       setToast({
@@ -287,7 +288,7 @@ const DepartmentDetails = () => {
         throw new Error("No checkout URL received")
       }
     } catch (error) {
-      console.error("Failed to get payment URL:", error)
+      // console.error("Failed to get payment URL:", error)
       setToast({
         show: true,
         message: "Failed to initiate online payment. Please try again or use bank transfer.",

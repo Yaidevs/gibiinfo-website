@@ -10,7 +10,7 @@ export default function ExamGenerator() {
   const { id } = useParams()
   const { data: exam } = useGetExitExamQuestionsQuery(id)
   const { data: tokenValidation, isLoading: validationLoading } = useValidateTokenQuery()
-  console.log('token Valid',tokenValidation)
+  // console.log('token Valid',tokenValidation)
 
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
