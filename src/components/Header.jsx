@@ -99,10 +99,10 @@ const Header = ({ menuOpen, setMenuOpen }) => {
   // Get first letter of email for profile circle
   const getProfileInitial = () => {
     const email = getUserEmail();
-    if (email) {
+    if (email && email.length > 0) {
       return email.charAt(0).toUpperCase();
     }
-    return null; // Default fallback
+    return "U"; // Default fallback if email exists but is empty
   };
 
   // Handle logout
@@ -128,7 +128,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
     }
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [menuOpen]);
+  }, [menuOpen, setMenuOpen]);
 
   // Handle dropdown clicks
   const handleProfileClick = () => {
@@ -271,16 +271,18 @@ const Header = ({ menuOpen, setMenuOpen }) => {
         />
       )}
 
-      <div className="w-full max-w-[1440px] mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="w-full max-w-[1440px] mx-auto px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/">
+        <Link to="/" className="flex-shrink-0">
           <div className="flex items-center">
             <img
               src={logo || "/placeholder.svg"}
-              className="w-16 h-auto"
+              className="w-10 h-auto sm:w-16"
               alt="Gibi Info Logo"
             />
-            <span className="text-3xl font-bold">Gibi Info</span>
+            <span className="text-xl sm:text-3xl font-bold ml-1 sm:ml-2">
+              Gibi Info
+            </span>
           </div>
         </Link>
 
@@ -289,21 +291,21 @@ const Header = ({ menuOpen, setMenuOpen }) => {
           className="lg:hidden text-white focus:outline-none"
           onClick={() => setMenuOpen(!menuOpen)}
         >
-          {menuOpen ? <MdClose size={30} /> : <MdMenu size={30} />}
+          {menuOpen ? <MdClose size={28} /> : <MdMenu size={28} />}
         </button>
 
         {/* Navigation Menu */}
         <nav
           ref={menuRef}
-          className={`absolute lg:static bg-[#008080] lg:bg-transparent w-full lg:w-auto top-[70px] left-0 lg:flex flex-col lg:flex-row items-center transition-all duration-300 ease-in-out ${
+          className={`absolute lg:static bg-[#008080] lg:bg-transparent w-full lg:w-auto top-[60px] sm:top-[70px] left-0 lg:flex flex-col lg:flex-row items-center transition-all duration-300 ease-in-out ${
             menuOpen ? "block" : "hidden"
-          }`}
+          } shadow-lg lg:shadow-none`}
         >
-          <div className="lg:flex lg:space-x-6 text-center lg:text-left py-6 lg:py-0 w-full lg:w-auto">
+          <div className="lg:flex lg:space-x-1 xl:space-x-6 text-center lg:text-left py-4 lg:py-0 w-full lg:w-auto">
             {["Home", "About Us", "Featured"].map((item) => (
               <Link
                 to={`/#${item.toLowerCase().replace(" ", "")}`}
-                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+                className="block py-2 lg:py-0 px-4 lg:px-2 xl:px-4 text-base lg:text-sm xl:text-base hover:bg-[#007070] lg:hover:bg-transparent lg:hover:text-gray-200 transition duration-200 whitespace-nowrap"
                 key={item}
                 onClick={() => setMenuOpen(false)}
               >
@@ -311,31 +313,21 @@ const Header = ({ menuOpen, setMenuOpen }) => {
               </Link>
             ))}
             {/* Exit Exam Link with blinking animation */}
-            {isAuthenticated ? (
-              <Link
-                to="/exit-exam"
-                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
-                onClick={() => setMenuOpen(false)}
-              >
-                Exit Exam
-              </Link>
-            ) : (
-              <Link
-                to="/exit-exam"
-                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none relative animate-pulse bg-opacity-70 font-bold"
-                onClick={() => setMenuOpen(false)}
-              >
-                Exit Exam
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
-                </span>
-              </Link>
-            )}
+            <Link
+              to="/exit-exam"
+              className="block py-2 lg:py-0 px-4 lg:px-2 xl:px-4 text-base lg:text-sm xl:text-base hover:bg-[#007070] lg:hover:bg-transparent lg:hover:text-gray-200 transition duration-200 relative whitespace-nowrap font-bold"
+              onClick={() => setMenuOpen(false)}
+            >
+              Exit Exam
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+              </span>
+            </Link>
             {isAuthenticated && (
               <Link
                 to="/my-exams"
-                className="block py-3 px-8 text-lg hover:bg-[#007070] transition duration-200 rounded lg:rounded-none"
+                className="block py-2 lg:py-0 px-4 lg:px-2 xl:px-4 text-base lg:text-sm xl:text-base hover:bg-[#007070] lg:hover:bg-transparent lg:hover:text-gray-200 transition duration-200 whitespace-nowrap"
                 onClick={() => setMenuOpen(false)}
               >
                 My Exams
@@ -345,7 +337,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
 
           {/* Mobile User Profile Menu - Only shown when menu is open */}
           <div className="lg:hidden bg-[#007070] py-2 px-6 w-full mt-2">
-            {isAuthenticated ? (
+            {isAuthenticated && getUserEmail() ? (
               <>
                 <div className="flex items-center py-3 border-b border-[#006060]">
                   <div className="w-8 h-8 rounded-full bg-white text-[#008080] flex items-center justify-center font-bold mr-3">
@@ -388,20 +380,20 @@ const Header = ({ menuOpen, setMenuOpen }) => {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-2 xl:space-x-4 flex-shrink-0">
           {!isAuthenticated ? (
             <button
               onClick={handleOpenSignUpModal}
-              className="bg-white text-[#008080] px-4 py-2 rounded-md hover:bg-gray-100 transition-colors"
+              className="bg-white text-[#008080] px-3 xl:px-4 py-1.5 xl:py-2 rounded-md hover:bg-gray-100 transition-colors text-sm whitespace-nowrap"
             >
               Sign Up / Sign In
             </button>
-          ) : (
+          ) : getUserEmail() ? (
             <div className="relative">
               <div
                 id="profile-button"
                 onClick={handleProfileClick}
-                className="w-10 h-10 rounded-full bg-white text-[#008080] flex items-center justify-center font-bold cursor-pointer hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 xl:w-10 xl:h-10 rounded-full bg-white text-[#008080] flex items-center justify-center font-bold cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 {getProfileInitial()}
               </div>
@@ -412,7 +404,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   id="profile-dropdown"
                   className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
                 >
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                  <div className="px-4 py-2 text-sm text-gray-700 border-b truncate">
                     {getUserEmail() || "User"}
                   </div>
                   <Link
@@ -433,11 +425,18 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                 </div>
               )}
             </div>
+          ) : (
+            <button
+              onClick={handleOpenSignUpModal}
+              className="bg-white text-[#008080] px-3 xl:px-4 py-1.5 xl:py-2 rounded-md hover:bg-gray-100 transition-colors text-sm whitespace-nowrap"
+            >
+              Sign Up / Sign In
+            </button>
           )}
 
           <Link
             to="/exit-exam"
-            className="bg-transparent border border-white text-white px-4 py-2 rounded-md hover:bg-[#007070] transition-colors"
+            className="bg-transparent border border-white text-white px-3 xl:px-4 py-1.5 xl:py-2 rounded-md hover:bg-[#007070] transition-colors text-sm whitespace-nowrap"
           >
             Get Started
           </Link>
@@ -449,24 +448,26 @@ const Header = ({ menuOpen, setMenuOpen }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
             {/* Modal Header */}
-            <div className="bg-[#008080] text-white px-6 py-4 flex justify-between items-center">
-              <h3 className="text-xl font-semibold">Sign Up / Sign In</h3>
+            <div className="bg-[#008080] text-white px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+              <h3 className="text-lg sm:text-xl font-semibold">
+                Sign Up / Sign In
+              </h3>
               <button
                 onClick={handleCloseSignUpModal}
                 className="text-white hover:text-gray-200"
               >
-                <FaTimes />
+                <FaTimes className="h-5 w-5" />
               </button>
             </div>
 
             {/* Modal Body - Only Phone Number Step */}
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <form onSubmit={handlePhoneSubmit}>
                 <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-4">
                     Enter Your Phone Number
                   </h4>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-sm text-gray-600 mb-4">
                     Please enter your phone number to continue with the sign up
                     process.
                   </p>
@@ -515,8 +516,7 @@ const Header = ({ menuOpen, setMenuOpen }) => {
                   >
                     {isProcessing ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Processing...
+                        <div className="animate-spin rounded-full text-center h-4 w-4 border-b-2 border-white mr-2"></div>
                       </>
                     ) : (
                       "Continue"

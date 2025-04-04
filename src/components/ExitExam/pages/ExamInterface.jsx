@@ -746,7 +746,7 @@ export default function ExamInterface() {
               </div>
 
               {/* Navigation Buttons - Made responsive */}
-              <div className="flex flex-col sm:flex-row justify-between mt-4 gap-2 p-8">
+              <div className="flex sm:flex-row justify-between mt-4 gap-2 p-8">
                 <button
                   onClick={goToPrevious}
                   className="py-3 bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-32"
@@ -756,7 +756,7 @@ export default function ExamInterface() {
                 </button>
                 <button
                   onClick={() => navigate(`/departments`)}
-                  className="py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto px-6"
+                  className="py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 w-full sm:w-auto px-6"
                 >
                   Finish Review
                 </button>
@@ -889,7 +889,7 @@ export default function ExamInterface() {
             </div>
 
             {/* Navigation Buttons - Made responsive */}
-            <div className="flex flex-col sm:flex-row justify-between mt-4 gap-2">
+            <div className="flex sm:flex-row justify-between mt-4 gap-2">
               <button
                 onClick={goToPrevious}
                 className="py-3 bg-indigo-700 text-white hover:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-32"
