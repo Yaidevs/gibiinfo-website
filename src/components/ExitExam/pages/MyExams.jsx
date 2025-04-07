@@ -13,11 +13,14 @@ import {
   FaListAlt,
   FaCheckCircle,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useGetMyExitExamsQuery } from "../data/api/dataApi";
+import { logout } from "../data/slice/authSlice";
+
 
 const MyExams = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const { data: myExamsData, isLoading, error } = useGetMyExitExamsQuery();
   // console.log('EXAMS DATA ...',myExamsData)
@@ -33,6 +36,13 @@ const MyExams = () => {
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("userEmail");
+    // Redirect to home or refresh page if needed
+    window.location.href = "/";
   };
 
   if (isLoading) {
@@ -58,10 +68,12 @@ const MyExams = () => {
             There was a problem loading your exams. Please try again later.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              handleLogout();
+            }}
             className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
           >
-            Retry
+            Logout and Retry please.
           </button>
         </div>
       </div>
@@ -99,7 +111,7 @@ const MyExams = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            {packages.map((pkg,index) => (
+            {packages.map((pkg, index) => (
               <div
                 key={index}
                 className="bg-white rounded-xl shadow-lg overflow-hidden border-teal-600"

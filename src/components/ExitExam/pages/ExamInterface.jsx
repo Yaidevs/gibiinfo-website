@@ -441,7 +441,7 @@ export default function ExamInterface() {
     return (
       <div className="bg-white min-h-screen pt-32 flex justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Loading...</h2>
+          {/* <h2 className="text-2xl font-bold text-gray-700 mb-4">Loading...</h2> */}
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
         </div>
       </div>

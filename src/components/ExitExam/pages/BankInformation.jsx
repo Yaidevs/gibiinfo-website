@@ -207,7 +207,7 @@ const BankInformation = () => {
                     {isBanksLoading ? (
                       <div className="text-center py-4">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto mb-2"></div>
-                        <p className="text-gray-600">Loading bank accounts...</p>
+                        {/* <p className="text-gray-600">Loading bank accounts...</p> */}
                       </div>
                     ) : banksError ? (
                       <div className="bg-red-50 p-4 rounded-lg text-red-700 flex items-center">
