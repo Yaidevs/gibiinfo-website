@@ -315,7 +315,6 @@ const BankInformation = () => {
                         onChange={(e) => setTransactionId(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                         placeholder="Enter the transaction ID or reference number"
-                        required
                       />
                     </div>
 
